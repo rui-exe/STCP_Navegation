@@ -1,0 +1,14 @@
+//
+// Created by Rui on 22/01/2022.
+//
+
+#ifndef STCP_NAVEGATION_STCP_OPERATIONS_H
+#define STCP_NAVEGATION_STCP_OPERATIONS_H
+
+
+class STCP_Operations {
+
+};
+
+
+#endif //STCP_NAVEGATION_STCP_OPERATIONS_H
