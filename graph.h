@@ -12,6 +12,8 @@
 using namespace std;
 
 class Graph {
+
+public:
     struct Edge {
         int dest;   // Destination node
         int weight; // An integer weight
@@ -23,7 +25,11 @@ class Graph {
         int dist;
         int pred;
         bool visited;
+        string code;
         string name;
+        string zone;
+        double latitude;
+        double longitude;
     };
 
     int n;              // Graph size (vertices are numbered from 1 to n)
@@ -32,7 +38,6 @@ class Graph {
 
     void dijkstra(int s);
 
-public:
     // Constructor: nr nodes and direction (default: undirected)
     Graph(int nodes, bool dir = false);
 
