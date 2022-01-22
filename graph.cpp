@@ -43,6 +43,7 @@ void Graph::dijkstra(int s) {
                 nodes[v].dist = nodes[u].dist + e.weight;
                 heap.decreaseKey(v, nodes[v].dist);
                 nodes[v].pred = u;
+                nodes[v].line = e.line;
             }
 
         }
@@ -64,6 +65,54 @@ list<int> Graph::dijkstra_path(int a, int b) {
     list<int> path;
     dijkstra(a);
     if(nodes[b].dist==(numeric_limits<long double>::max()/2))
+        return path;
+    int dest = b;
+    while(dest!=a){
+        path.push_front(dest);
+        dest=nodes[dest].pred;
+    }
+    path.push_front(dest);
+    return path;
+}
+
+void Graph::bfs(int v) {
+    nodes[v].unweighted_distance=0;
+    for (int i=1; i<=n; i++)
+        nodes[i].visited = false;
+    queue<int> q; // queue of unvisited nodes
+    q.push(v);
+    nodes[v]. visited = true;
+    while (!q.empty()) { // while there are still unvisited nodes
+        int u = q.front(); q.pop();
+        for (const auto& e : nodes[u].adj) {
+            int w = e.dest;
+            if (!nodes[w].visited) {
+                q.push(w);
+                nodes[w].visited = true;
+                nodes[w].unweighted_distance = nodes[u].unweighted_distance+1;
+                nodes[w].pred = u;
+                nodes[w].line = e.line;
+            }
+        }
+    }
+}
+
+
+int Graph::unweighted_distance(int a, int b){
+    for(int i=1;i<=n;i++){
+        nodes[i].unweighted_distance=0;
+    }
+    bfs(a);
+    if(a!=b and nodes[b].unweighted_distance==0)
+        return -1;
+    else
+        return nodes[b].unweighted_distance;
+}
+
+list<int> Graph::unweighted_path(int a,int b){
+    list<int> path;
+    bfs(a);
+    if(!nodes[b].visited)
         return path;
     int dest = b;
     while(dest!=a){

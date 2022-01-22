@@ -9,6 +9,7 @@
 #include <string>
 #include <list>
 #include <iostream>
+#include <queue>
 #include <limits>
 
 using namespace std;
@@ -32,6 +33,8 @@ public:
         string zone;
         double latitude;
         double longitude;
+        string line;
+        int unweighted_distance;
     };
 
     int n;              // Graph size (vertices are numbered from 1 to n)
@@ -49,6 +52,11 @@ public:
     // ----- Functions to implement in this class -----
     long double dijkstra_distance(int a, int b);
     list<int> dijkstra_path(int a, int b);
+
+    void bfs(int v);
+    int unweighted_distance(int a, int b);
+
+    list<int> unweighted_path(int a,int b);
 };
 
 #endif

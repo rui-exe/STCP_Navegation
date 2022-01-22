@@ -108,12 +108,12 @@ void STCP_Operations::read_lines(){
             number_stops_in_line = stoi(aux_number_stops);
             string previous_bus_stop0;
             getline(line_file0, previous_bus_stop0); // starting point
-            while (number_stops_in_line > 0) {
+            while (number_stops_in_line > 1) {
                 string current_bus_stop0;
                 getline(line_file0, current_bus_stop0);
                 int previous_node = code_to_node[previous_bus_stop0];
                 int current_node = code_to_node[current_bus_stop0];
-                stcp.addEdge(previous_node, current_node, bus_line, dist_stops(previous_node, current_node));
+                stcp.addEdge(previous_node, current_node, bus_line+"_0", dist_stops(previous_node, current_node));
                 previous_bus_stop0 = current_bus_stop0;
                 number_stops_in_line--;
             }
@@ -122,13 +122,16 @@ void STCP_Operations::read_lines(){
         line_file1.open("line_"+ bus_line+"_1.csv");
         if(line_file1.is_open()) {
             string previous_bus_stop1;
+            getline(line_file1,aux_number_stops);
+            number_stops_in_line = stoi(aux_number_stops);
             getline(line_file1, previous_bus_stop1); // starting point
-            while (number_stops_in_line > 0) {
+            number_stops_in_line = stoi(aux_number_stops);
+            while (number_stops_in_line > 1) {
                 string current_bus_stop1;
                 getline(line_file1, current_bus_stop1);
                 int previous_node = code_to_node[previous_bus_stop1];
                 int current_node = code_to_node[current_bus_stop1];
-                stcp.addEdge(previous_node, current_node, bus_line, dist_stops(previous_node, current_node));
+                stcp.addEdge(previous_node, current_node, bus_line+"_1", dist_stops(previous_node, current_node));
                 previous_bus_stop1 = current_bus_stop1;
                 number_stops_in_line--;
             }
@@ -140,5 +143,16 @@ STCP_Operations::STCP_Operations(){
     stcp = Graph( number_of_lines_in_file("stops.csv")-1,true);
     read_stops();
     read_lines();
-    cout << "gg";
+    /*
+    list<int> stops = stcp.dijkstra_path(1,code_to_node["MTSP1"]);
+
+    for(int stop:stops){
+        cout << stcp.nodes[stop].name << "--" << stcp.nodes[stop].code << "--" <<stcp.nodes[stop].line << endl;
+    }
+     */
+    list<int> stops = stcp.unweighted_path(1,code_to_node["MTSP1"]);
+
+    for(int stop:stops){
+        cout << stcp.nodes[stop].name << "--" << stcp.nodes[stop].code << "--" <<stcp.nodes[stop].line << endl;
+    }
 }
