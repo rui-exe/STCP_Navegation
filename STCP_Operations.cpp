@@ -144,16 +144,37 @@ STCP_Operations::STCP_Operations(){
     read_stops();
     read_lines();
 
-    list<int> stops_distance = stcp.dijkstra_less_length_path(1,code_to_node["MTSP1"]);
 
+    list<int> stops_distance = stcp.dijkstra_less_length_path(code_to_node["FEUP1"],code_to_node["FCUP1"]);
     for(int stop:stops_distance){
-        cout << stcp.nodes[stop].name << "--" << stcp.nodes[stop].code << "--" <<stcp.nodes[stop].line << endl;
+        cout << stcp.nodes[stop].name << "--" << stcp.nodes[stop].code << "--" <<stcp.nodes[stop].line << "---"<<
+        stcp.nodes[stop].zone<<endl;
+    }
+    cout << endl << "------" << endl << endl;
+
+
+    list<int> stops_changes = stcp.dijkstra_less_changes_path(code_to_node["FEUP1"],code_to_node["FCUP1"]);
+
+    for(int stop:stops_changes){
+        cout << stcp.nodes[stop].name << "--" << stcp.nodes[stop].code << "--" <<stcp.nodes[stop].line << "----" <<
+        stcp.nodes[stop].zone<<endl;
     }
 
     cout << endl << "------" << endl << endl;
-    list<int> min_stops = stcp.unweighted_path(1,code_to_node["MTSP1"]);
-
+    list<int> min_stops = stcp.unweighted_path(code_to_node["FEUP1"],code_to_node["FCUP1"]);
+    string line_2 = stcp.nodes[min_stops.front()].line;
     for(int stop:min_stops){
-        cout << stcp.nodes[stop].name << "--" << stcp.nodes[stop].code << "--" <<stcp.nodes[stop].line << endl;
+        cout << stcp.nodes[stop].name << "--" << stcp.nodes[stop].code << "--" <<stcp.nodes[stop].line << "---"<<
+       stcp.nodes[stop].zone<<endl;
     }
+
+
+    cout << endl << "------" << endl << endl;
+
+    list<int> zones_distance = stcp.dijkstra_less_zones_path(code_to_node["FEUP1"],code_to_node["FCUP1"]);
+    for(int stop:zones_distance){
+        cout << stcp.nodes[stop].name << "--" << stcp.nodes[stop].code << "--" <<stcp.nodes[stop].line << "---"<<
+       stcp.nodes[stop].zone<<endl;
+    }
+
 }

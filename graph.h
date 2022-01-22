@@ -11,7 +11,8 @@
 #include <iostream>
 #include <queue>
 #include <limits>
-
+#include <algorithm>
+#include <unordered_set>
 using namespace std;
 
 class Graph {
@@ -27,6 +28,8 @@ public:
         list<Edge> adj; // The list of outgoing edges (to adjacent nodes)
         long double dist;
         int pred;
+        int line_changes;
+        int zones;
         bool visited;
         string code;
         string name;
@@ -35,6 +38,7 @@ public:
         double longitude;
         string line;
         int unweighted_distance;
+        unordered_set<string> zones_used;
     };
 
     int n;              // Graph size (vertices are numbered from 1 to n)
@@ -44,7 +48,7 @@ public:
 
     void dijkstra_less_changes(int s);
     void dijkstra_less_length(int s);
-
+    void dijkstra_less_zones(int s);
     // Constructor: nr nodes and direction (default: undirected)
     Graph(int nodes, bool dir = false);
 
@@ -54,6 +58,8 @@ public:
     // ----- Functions to implement in this class -----
     long double dijkstra_less_length_distance(int a, int b);
     list<int> dijkstra_less_length_path(int a, int b);
+    list<int> dijkstra_less_changes_path(int a, int b);
+    list<int> dijkstra_less_zones_path(int a, int b);
 
     void bfs(int v);
     int unweighted_distance(int a, int b);
