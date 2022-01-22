@@ -3,4 +3,4 @@ project(STCP_Navegation)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(STCP_Navegation main.cpp graph.cpp graph.h minheap.h STCP_Operations.cpp STCP_Operations.h)
+add_executable(STCP_Navegation main.cpp graph.cpp graph.h minheap.h STCP_Operations.cpp STCP_Operations.h BusStop.cpp BusStop.h)
