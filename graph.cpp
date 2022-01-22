@@ -20,16 +20,16 @@ void Graph::addEdge(int src, int dest, int weight) {
 // 1) Algoritmo de Dijkstra e caminhos mais curtos
 // ----------------------------------------------------------
 
-// ..............................
-// a) Distância entre dois nós
-// TODO
-int Graph::dijkstra_distance(int a, int b) {
+
+
+
+void Graph::dijkstra(int s) {
     for(int i=1;i<nodes.size();i++){
         nodes[i].dist = INT32_MAX;
         nodes[i].visited = false;
     }
-    nodes[a].dist=0;
-    nodes[a].pred = a;
+    nodes[s].dist=0;
+    nodes[s].pred = s;
     MinHeap<int,int> heap(nodes.size()-1,-1);
     for(int i=1;i<nodes.size();i++){
         heap.insert(i,nodes[i].dist);
@@ -47,6 +47,13 @@ int Graph::dijkstra_distance(int a, int b) {
 
         }
     }
+}
+
+// ..............................
+// a) Distância entre dois nós
+// TODO
+int Graph::dijkstra_distance(int a, int b) {
+    dijkstra(a);
     return nodes[b].dist==INT32_MAX?-1:nodes[b].dist;
 }
 
@@ -55,7 +62,8 @@ int Graph::dijkstra_distance(int a, int b) {
 // TODO
 list<int> Graph::dijkstra_path(int a, int b) {
     list<int> path;
-    if(dijkstra_distance(a,b)==-1)
+    dijkstra(a);
+    if(nodes[b].dist==INT32_MAX)
         return path;
     int dest = b;
     while(dest!=a){
