@@ -14,10 +14,11 @@ using namespace std;
 class STCP_Operations {
 private:
     map<string,int> code_to_node;
+    Graph stcp = Graph(0);
     void read_stops();
+    void read_lines();
 public:
     STCP_Operations();
-
 };
 
 

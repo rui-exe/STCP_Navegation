@@ -8,7 +8,7 @@
 int number_of_lines_in_file(string file_name){
     int number_of_lines = 0;
     string line;
-    ifstream myfile(file_name + ".txt");
+    ifstream myfile(file_name);
     while (getline(myfile, line))
         ++number_of_lines;
     myfile.close();
@@ -18,15 +18,17 @@ int number_of_lines_in_file(string file_name){
 void STCP_Operations::read_stops(){
     ifstream input_file;
     string line;
-    Graph stcp = Graph( number_of_lines_in_file("dataset/stops.csv")-1,true);
     int i=1;
-    input_file.open("dataset/stops.csv");
+    input_file.open("stops.csv");
     getline(input_file,line);
     while(getline(input_file,line)){
+        vector<string> words;
+        string word;
         stringstream ssline(line);
-        string code,name,zone;
-        double latitude,longitude;
-        ssline >> code >> name >> zone >> latitude >> longitude;
+        while(getline(ssline,word,','))
+            words.push_back(word);
+        string code=words[0],name=words[1],zone=words[2];
+        double latitude=stod(words[3]),longitude=stod(words[4]);
         code_to_node[code]=i;
         stcp.nodes[i].code = code;
         stcp.nodes[i].name = name;
@@ -38,7 +40,12 @@ void STCP_Operations::read_stops(){
 
 }
 
+void STCP_Operations::read_lines(){
+
+}
+
 STCP_Operations::STCP_Operations(){
+    stcp = Graph( number_of_lines_in_file("stops.csv")-1,true);
     read_stops();
     cout << "gg";
 }
