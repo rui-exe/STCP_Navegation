@@ -143,16 +143,17 @@ STCP_Operations::STCP_Operations(){
     stcp = Graph( number_of_lines_in_file("stops.csv")-1,true);
     read_stops();
     read_lines();
-    /*
-    list<int> stops = stcp.dijkstra_path(1,code_to_node["MTSP1"]);
 
-    for(int stop:stops){
+    list<int> stops_distance = stcp.dijkstra_less_length_path(1,code_to_node["MTSP1"]);
+
+    for(int stop:stops_distance){
         cout << stcp.nodes[stop].name << "--" << stcp.nodes[stop].code << "--" <<stcp.nodes[stop].line << endl;
     }
-     */
-    list<int> stops = stcp.unweighted_path(1,code_to_node["MTSP1"]);
 
-    for(int stop:stops){
+    cout << endl << "------" << endl << endl;
+    list<int> min_stops = stcp.unweighted_path(1,code_to_node["MTSP1"]);
+
+    for(int stop:min_stops){
         cout << stcp.nodes[stop].name << "--" << stcp.nodes[stop].code << "--" <<stcp.nodes[stop].line << endl;
     }
 }

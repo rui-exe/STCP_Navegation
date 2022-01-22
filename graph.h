@@ -41,7 +41,9 @@ public:
     bool hasDir;        // false: undirect; true: directed
     vector<Node> nodes; // The list of nodes being represented
 
-    void dijkstra(int s);
+
+    void dijkstra_less_changes(int s);
+    void dijkstra_less_length(int s);
 
     // Constructor: nr nodes and direction (default: undirected)
     Graph(int nodes, bool dir = false);
@@ -50,8 +52,8 @@ public:
     void addEdge(int src, int dest, string line,long double weight = 1);
 
     // ----- Functions to implement in this class -----
-    long double dijkstra_distance(int a, int b);
-    list<int> dijkstra_path(int a, int b);
+    long double dijkstra_less_length_distance(int a, int b);
+    list<int> dijkstra_less_length_path(int a, int b);
 
     void bfs(int v);
     int unweighted_distance(int a, int b);

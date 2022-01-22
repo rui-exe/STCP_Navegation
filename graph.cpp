@@ -22,8 +22,43 @@ void Graph::addEdge(int src, int dest, string line,long double weight) {
 
 
 
+void Graph::dijkstra_less_changes(int s) {
+    for(int i=1;i<nodes.size();i++){
+        nodes[i].dist = numeric_limits<long double>::max()/2;
+        nodes[i].visited = false;
+    }
+    nodes[s].dist=0;
+    nodes[s].pred = s;
+    MinHeap<int,pair<long double,bool>> heap(nodes.size()-1,-1);
+    for(int i=1;i<nodes.size();i++){
+        heap.insert(i,{nodes[i].dist,true});
+    }
+    string current_line
+    while(heap.getSize()>0){
+        int u = heap.removeMin();
+        nodes[u].visited = true;
+        for(Edge e:nodes[u].adj){
+            int v = e.dest;
+            if(!nodes[v].visited && nodes[u].dist+e.weight<nodes[v].dist) {
+                nodes[v].dist = nodes[u].dist + e.weight;
+                heap.decreaseKey(v, nodes[v].dist);
+                nodes[v].pred = u;
+                nodes[v].line = e.line;
+            }
 
-void Graph::dijkstra(int s) {
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+void Graph::dijkstra_less_length(int s) {
     for(int i=1;i<nodes.size();i++){
         nodes[i].dist = numeric_limits<long double>::max()/2;
         nodes[i].visited = false;
@@ -53,17 +88,17 @@ void Graph::dijkstra(int s) {
 // ..............................
 // a) Distância entre dois nós
 // TODO
-long double Graph::dijkstra_distance(int a, int b) {
-    dijkstra(a);
+long double Graph::dijkstra_less_length_distance(int a, int b) {
+    dijkstra_less_length(a);
     return nodes[b].dist==(numeric_limits<long double>::max()/2)?-1:nodes[b].dist;
 }
 
 // ..............................
 // b) Caminho mais curto entre dois nós
 // TODO
-list<int> Graph::dijkstra_path(int a, int b) {
+list<int> Graph::dijkstra_less_length_path(int a, int b) {
     list<int> path;
-    dijkstra(a);
+    dijkstra_less_length(a);
     if(nodes[b].dist==(numeric_limits<long double>::max()/2))
         return path;
     int dest = b;
