@@ -9,10 +9,10 @@ Graph::Graph(int num, bool dir) : n(num), hasDir(dir), nodes(num+1) {
 }
 
 // Add edge from source to destination with a certain weight
-void Graph::addEdge(int src, int dest, int weight) {
+void Graph::addEdge(int src, int dest, string line,long double weight) {
     if (src<1 || src>n || dest<1 || dest>n) return;
-    nodes[src].adj.push_back({dest, weight});
-    if (!hasDir) nodes[dest].adj.push_back({src, weight});
+    nodes[src].adj.push_back({dest,line, weight});
+    if (!hasDir) nodes[dest].adj.push_back({src,line, weight});
 }
 
 
@@ -25,12 +25,12 @@ void Graph::addEdge(int src, int dest, int weight) {
 
 void Graph::dijkstra(int s) {
     for(int i=1;i<nodes.size();i++){
-        nodes[i].dist = INT32_MAX;
+        nodes[i].dist = numeric_limits<long double>::max()/2;
         nodes[i].visited = false;
     }
     nodes[s].dist=0;
     nodes[s].pred = s;
-    MinHeap<int,int> heap(nodes.size()-1,-1);
+    MinHeap<int,long double> heap(nodes.size()-1,-1);
     for(int i=1;i<nodes.size();i++){
         heap.insert(i,nodes[i].dist);
     }
@@ -52,9 +52,9 @@ void Graph::dijkstra(int s) {
 // ..............................
 // a) Distância entre dois nós
 // TODO
-int Graph::dijkstra_distance(int a, int b) {
+long double Graph::dijkstra_distance(int a, int b) {
     dijkstra(a);
-    return nodes[b].dist==INT32_MAX?-1:nodes[b].dist;
+    return nodes[b].dist==(numeric_limits<long double>::max()/2)?-1:nodes[b].dist;
 }
 
 // ..............................
@@ -63,7 +63,7 @@ int Graph::dijkstra_distance(int a, int b) {
 list<int> Graph::dijkstra_path(int a, int b) {
     list<int> path;
     dijkstra(a);
-    if(nodes[b].dist==INT32_MAX)
+    if(nodes[b].dist==(numeric_limits<long double>::max()/2))
         return path;
     int dest = b;
     while(dest!=a){

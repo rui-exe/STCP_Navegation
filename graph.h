@@ -6,8 +6,10 @@
 
 #include "minHeap.h"
 #include <vector>
+#include <string>
 #include <list>
 #include <iostream>
+#include <limits>
 
 using namespace std;
 
@@ -16,13 +18,13 @@ class Graph {
 public:
     struct Edge {
         int dest;   // Destination node
-        int weight; // An integer weight
-        string line; //
+        string line;
+        long double weight; // A double weight
     };
 
     struct Node {
         list<Edge> adj; // The list of outgoing edges (to adjacent nodes)
-        int dist;
+        long double dist;
         int pred;
         bool visited;
         string code;
@@ -42,10 +44,10 @@ public:
     Graph(int nodes, bool dir = false);
 
     // Add edge from source to destination with a certain weight
-    void addEdge(int src, int dest, int weight = 1);
+    void addEdge(int src, int dest, string line,long double weight = 1);
 
     // ----- Functions to implement in this class -----
-    int dijkstra_distance(int a, int b);
+    long double dijkstra_distance(int a, int b);
     list<int> dijkstra_path(int a, int b);
 };
 
