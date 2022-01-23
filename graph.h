@@ -13,6 +13,8 @@
 #include <limits>
 #include <algorithm>
 #include <unordered_set>
+#include <cmath>
+
 using namespace std;
 
 class Graph {
@@ -60,10 +62,10 @@ public:
     list<int> dijkstra_less_length_path(int a, int b);
     list<int> dijkstra_less_changes_path(int a, int b);
     list<int> dijkstra_less_zones_path(int a, int b);
-
+    static long double dist_stops(const Node& previous_node,const Node& current_node);
     void bfs(int v);
     int unweighted_distance(int a, int b);
-
+    Graph add_walking(long double dist);
     list<int> unweighted_path(int a,int b);
 };
 

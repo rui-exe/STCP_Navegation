@@ -71,7 +71,7 @@ void Graph::dijkstra_less_zones(int s) {
         nodes[u].visited = true;
         for(const Edge& e:nodes[u].adj){
             int v = e.dest;
-            if(!nodes[v].visited) {
+            if(!nodes[v].visited and (nodes[u].line!="walking" or e.line!="walking")) {
                 int old_zone_changes = nodes[v].zones;
                 int new_zone_changes;
                 if (nodes[u].zones_used.find(nodes[v].zone)==nodes[u].zones_used.end()) {
@@ -157,7 +157,7 @@ void Graph::dijkstra_less_changes(int s) {
         nodes[u].visited = true;
         for(Edge e:nodes[u].adj){
             int v = e.dest;
-            if(!nodes[v].visited) {
+            if(!nodes[v].visited and (nodes[u].line!="walking" or e.line!="walking")){
                 int old_line_changes = nodes[v].line_changes;
                 int new_line_changes;
                 if (nodes[u].line != e.line)
@@ -233,7 +233,7 @@ void Graph::dijkstra_less_length(int s) {
         nodes[u].visited = true;
         for(Edge e:nodes[u].adj){
             int v = e.dest;
-            if(!nodes[v].visited && nodes[u].dist+e.weight<nodes[v].dist) {
+            if(!nodes[v].visited and nodes[u].dist+e.weight<nodes[v].dist and (nodes[u].line!="walking" or e.line!="walking")) {
                 nodes[v].dist = nodes[u].dist + e.weight;
                 heap.decreaseKey(v, nodes[v].dist);
                 nodes[v].pred = u;
@@ -280,7 +280,7 @@ void Graph::bfs(int v) {
         int u = q.front(); q.pop();
         for (const auto& e : nodes[u].adj) {
             int w = e.dest;
-            if (!nodes[w].visited) {
+            if (!nodes[w].visited and (nodes[u].line!="walking" or e.line!="walking")) {
                 q.push(w);
                 nodes[w].visited = true;
                 nodes[w].unweighted_distance = nodes[u].unweighted_distance+1;
@@ -315,4 +315,63 @@ list<int> Graph::unweighted_path(int a,int b){
     }
     path.push_front(dest);
     return path;
+}
+
+long double toRadians(const long double degree)
+{
+// cmath library in C++
+// defines the constant
+// M_PI as the value of
+// pi accurate to 1e-30
+    long double one_deg = (M_PI) / 180;
+    return (one_deg * degree);
+}
+
+long double distance(long double lat1, long double long1,
+                     long double lat2, long double long2)
+{
+    // Convert the latitudes
+    // and longitudes
+    // from degree to radians.
+    lat1 = toRadians(lat1);
+    long1 = toRadians(long1);
+    lat2 = toRadians(lat2);
+    long2 = toRadians(long2);
+
+    // Haversine Formula
+    long double dlong = long2 - long1;
+    long double dlat = lat2 - lat1;
+
+    long double ans = pow(sin(dlat / 2), 2) +
+                      cos(lat1) * cos(lat2) *
+                      pow(sin(dlong / 2), 2);
+
+    ans = 2 * asin(sqrt(ans));
+
+    // Radius of Earth in
+    // Kilometers, R = 6371
+    // Use R = 3956 for miles
+    long double R = 6371;
+
+    // Calculate the result
+    ans = ans * R;
+
+    return ans;
+}
+
+Graph Graph::add_walking(long double dist) {
+    Graph walking_graph = *this;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (dist_stops(walking_graph.nodes[i], walking_graph.nodes[j]) < dist)
+                walking_graph.addEdge(i, j, "walking"), dist_stops(nodes[i], nodes[j]);
+        }
+    }
+    return walking_graph;
+}
+
+
+long double Graph::dist_stops(const Node& previous_node,const Node& current_node){
+    return distance(previous_node.latitude,previous_node.longitude,
+                  current_node.latitude,current_node.longitude);
 }
