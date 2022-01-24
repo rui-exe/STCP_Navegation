@@ -47,9 +47,9 @@ int main() {
     stcp_copy.add_location(41.18292646606174, -8.598989323909137);
     stcp_copy.add_location(41.17880629312572, -8.693166401315493);
     */
-    stcp_copy.add_walking(0.5);
+    stcp_copy.add_walking(1.0);
     cout << endl << endl << endl;
-    list<int> stops =  stcp_copy.dijkstra_less_changes_path(code_to_node["VALC1"],code_to_node["CMP1"],code_to_node);
+    list<int> stops =  stcp_copy.dijkstra_less_changes_path(code_to_node["FEUP1"],code_to_node["FCUP1"],code_to_node);
     for(int stop:stops){
         cout << "Paragem: " << stcp_copy.nodes[stop].name << "  Codigo: " << stcp_copy.nodes[stop].code << " Linha a apanhar: "<<
        stcp_copy.nodes[stop].line << "  Zona: " <<stcp_copy.nodes[stop].zone<<endl;

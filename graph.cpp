@@ -146,6 +146,7 @@ Graph Graph::stop_and_lines_graph(int a,int b) {
     less_changes.nodes.push_back(Node());
     less_changes.nodes[less_changes.n].code = nodes[b].code;
     for(int i=1;i<=n;i++){
+        unordered_set<string> set_lines_in_node;
         vector<string> lines_in_node;
         for(Edge e:nodes[i].adj){
             if(name_to_int.find(nodes[i].code+"-"+e.line)==name_to_int.end()) {
@@ -159,10 +160,15 @@ Graph Graph::stop_and_lines_graph(int a,int b) {
                 less_changes.nodes[less_changes.n].code = nodes[e.dest].code + "-" + e.line;
             }
             less_changes.addEdge(name_to_int[nodes[i].code + "-" + e.line],name_to_int[nodes[e.dest].code + "-" + e.line],"",e.weight);
-            lines_in_node.push_back(e.line);
+            set_lines_in_node.insert(e.line);
             if(nodes[e.dest].code==nodes[b].code){
                 less_changes.addEdge(name_to_int[nodes[b].code + "-" + e.line],name_to_int[nodes[b].code],"",0);
             }
+        }
+
+        while(!set_lines_in_node.empty()){
+            lines_in_node.push_back(*set_lines_in_node.begin());
+            set_lines_in_node.erase(set_lines_in_node.begin());
         }
         for(int j=0;j<lines_in_node.size();j++){
             for(int k=j+1;k<lines_in_node.size();k++) {
