@@ -5,7 +5,24 @@
 #include "Menu.h"
 
 const char INVALID_KEY = 0;
-const string INVALID_STRING = "";
+const string INVALID_STRING;
+const double INVALID = -1.0;
+
+double read_double() {
+    double n;
+    cin >> n;
+    if (cin.eof()) {
+        exit(EXIT_SUCCESS);
+    }
+    else if (cin.fail() or cin.peek() != '\n') {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return INVALID;
+    }
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    return n;
+}
 
 string read_string(){
     string s;
@@ -46,10 +63,7 @@ void Menu::interface() {
         option=readChar();
         switch (option) {
             case '1': {
-                bool walking;
-                cout<<"Are you willing to walk (0|1): ";
-                cin>>walking;
-                plan_trip(walking);
+                plan_trip();
                 break;
             }
             case '2':{
@@ -63,20 +77,19 @@ void Menu::interface() {
     }
 }
 
-void Menu::plan_trip(bool walking) {
-    long double walking_dist=0.0;
+void Menu::plan_trip() {
+    long double walking_dist;
     char option;
-    if(walking){
-        cout<<"How many km are you willing to walk on foot (max:1km): ";
-        cin>>walking_dist;
-    }
-    while (!cin.eof() and option != '4') {
+    cout<<"How many km are you willing to walk on foot (max:1km): ";
+    cin>>walking_dist;
+    while (!cin.eof() and option != '5') {
         cout<<endl;
         cout << "Please enter an option" << endl;
         cout << "1. Station to station" << endl;
-        cout << "2. Coordinate to station or vice versa" << endl;
-        cout << "3. Coordinate to Coordinate" << endl;
-        cout << "4. Exit" << endl;
+        cout << "2. Station to Coordinate" << endl;
+        cout << "3. Coordinate to Station" << endl;
+        cout << "4. Coordinate to Coordinate" << endl;
+        cout << "5. Exit" << endl;
         cout<<endl;
         option=readChar();
         switch (option) {
@@ -85,14 +98,18 @@ void Menu::plan_trip(bool walking) {
                 break;
             }
             case '2':{
-                coordinate_to_station(walking_dist);
+                station_to_coordinate(walking_dist);
                 break;
             }
             case '3':{
+                coordinate_to_station(walking_dist);
+                break;
+            }
+            case '4':{
                 coordinate_to_coordinate(walking_dist);
                 break;
             }
-            case '4': {
+            case '5': {
                 continue;
             }
             default:{
@@ -110,75 +127,201 @@ void Menu::station_to_station(long double walking_dist) {
     stationA=read_string();
     cout << "Code of Station B: ";
     stationB = read_string();
-    char option;
-    cout << "Please enter an option" << endl;
-    cout << "1. Less stops" << endl;
-    cout << "2. Less distance" << endl;
-    cout << "3. Less line changes" << endl;
-    cout << "4. Less cost (total zones)" << endl;
-    option = readChar();
-    Graph stcp_reference = operations.getStcp_reference();
-    stcp_reference.add_walking(walking_dist);
-    switch (option) {
-        case '1': {
-            list<int> stops_changes = stcp_reference.unweighted_path(code_to_node[stationA],
-                                                                     code_to_node[stationB]);
-            for (int stop: stops_changes) {
-                cout << "Paragem: " << stcp_reference.nodes[stop].name << "  Codigo: "
-                     << stcp_reference.nodes[stop].code << " Linha apanhada: " <<
-                     stcp_reference.nodes[stop].line << "  Zona: " << stcp_reference.nodes[stop].zone << endl;
-            }
+    Graph stcp_copy = operations.getStcp_copy();
+    char method = choose_method();
+    switch (method) {
+        case'1':{
+            less_changes(stcp_copy,code_to_node[stationA],code_to_node[stationB],walking_dist);
             break;
         }
-        case '2':{
-            list<int> stops_distance = stcp_reference.dijkstra_less_length_path(code_to_node[stationA],
-                                                                                code_to_node[stationB]);
-            for (int stop: stops_distance) {
-                cout << "Paragem: " << stcp_reference.nodes[stop].name << "  Codigo: "
-                     << stcp_reference.nodes[stop].code
-                     << " Linha a apanhar: " << stcp_reference.nodes[stop].line << "  Zona: "
-                     << stcp_reference.nodes[stop].zone << endl;
-            }
-            cout << endl << "------" << endl << endl;
-            cout << "Distance traveled = " << stcp_reference.nodes[stops_distance.back()].dist << " km" << endl;
-
+        case '2': {
+            less_stops(stcp_copy,code_to_node[stationA],code_to_node[stationB],walking_dist);
             break;
         }
         case '3': {
-            Graph stcp_copy = operations.getStcp_copy();
-            stcp_copy.add_walking(walking_dist);
-            list<int> stops = stcp_copy.dijkstra_less_changes_path(code_to_node[stationA], code_to_node[stationB],
-                                                                   code_to_node);
-            for (int stop: stops) {
-                cout << "Paragem: " << stcp_copy.nodes[stop].name << "  Codigo: " << stcp_copy.nodes[stop].code
-                     << " Linha a apanhar: " << stcp_copy.nodes[stop].line << "  Zona: " << stcp_copy.nodes[stop].zone
-                     << endl;
-            }
+            less_distance(stcp_copy,code_to_node[stationA],code_to_node[stationB],walking_dist);
             break;
         }
-        case '4': {
+        case '4':{
+            less_zones(stcp_copy,code_to_node[stationA],code_to_node[stationB],walking_dist);
+            break;
+        }
+    }
 
-            list<int> zones_distance = stcp_reference.dijkstra_less_zones_path(code_to_node["FEUP1"],code_to_node["FCUP1"]);
-            for(int stop:zones_distance){
-                cout << "Paragem: "<< stcp_reference.nodes[stop].name << "  Codigo: " << stcp_reference.nodes[stop].code << " Linha a apanhar: "
-                <<stcp_reference.nodes[stop].line << "  Zona: "<<stcp_reference.nodes[stop].zone<<endl;
-            }
+}
+
+void Menu::coordinate_to_station(long double walking_dist) {
+    string station;
+    double latitude, longitude;
+    cout<<endl;
+    cout << "Latitude of start coordinate  ";
+    latitude = read_double();
+    cout << "Latitude of start coordinate  ";
+    longitude= read_double();
+    cout << "Code of Final Station: ";
+    station=read_string();
+    Graph stcp_copy = operations.getStcp_copy();
+    stcp_copy.add_initial_location(latitude, longitude);
+    code_to_node["LI"] = stcp_copy.n;
+    char method = choose_method();
+    switch (method) {
+        case'1':{
+            less_changes(stcp_copy,stcp_copy.n,code_to_node[station],walking_dist);
             break;
         }
-        default:{
-            cout << "The option you entered is invalid. " << endl;
+        case '2': {
+            less_stops(stcp_copy,stcp_copy.n,code_to_node[station],walking_dist);
+            break;
+        }
+        case '3': {
+            less_distance(stcp_copy,stcp_copy.n,code_to_node[station],walking_dist);
+            break;
+        }
+        case '4':{
+            less_zones(stcp_copy,stcp_copy.n,code_to_node[station],walking_dist);
             break;
         }
     }
 }
 
-void Menu::coordinate_to_station(long double walking_dist) {
-
-}
-
 void Menu::coordinate_to_coordinate (long double walking_dist) {
-
+    double latitude1, longitude1, latitude2, longitude2;
+    cout<<endl;
+    cout << "Latitude of start coordinate  ";
+    latitude1 = read_double();
+    cout << "Latitude of start coordinate  ";
+    longitude1= read_double();
+    cout << "Latitude of end coordinate  ";
+    latitude2 = read_double();
+    cout << "Latitude of end coordinate  ";
+    longitude2= read_double();
+    Graph stcp_copy = operations.getStcp_copy();
+    stcp_copy.add_initial_location(latitude1, longitude1);
+    stcp_copy.add_final_location(latitude2,longitude2);
+    code_to_node["LI"] = stcp_copy.n-1;
+    code_to_node["LF"] = stcp_copy.n;
+    char method = choose_method();
+    switch (method) {
+        case'1':{
+            less_changes(stcp_copy,stcp_copy.n-1,stcp_copy.n,walking_dist);
+            break;
+        }
+        case '2': {
+            less_stops(stcp_copy,stcp_copy.n-1,stcp_copy.n,walking_dist);
+            break;
+        }
+        case '3': {
+            less_distance(stcp_copy,stcp_copy.n-1,stcp_copy.n,walking_dist);
+            break;
+        }
+        case '4':{
+            less_zones(stcp_copy,stcp_copy.n-1,stcp_copy.n,walking_dist);
+            break;
+        }
+    }
 }
 
+void Menu::station_to_coordinate(long double walking_dist) {
+    string station;
+    double latitude, longitude;
+    cout<<endl;
+    cout << "Code of Start Station: ";
+    station=read_string();
+    cout << "Latitude of end coordinate  ";
+    latitude = read_double();
+    cout << "Latitude of end coordinate  ";
+    longitude= read_double();
+    Graph stcp_copy = operations.getStcp_copy();
+    stcp_copy.add_final_location(latitude,longitude);
+    code_to_node["FI"] = stcp_copy.n;
+    char method = choose_method();
+    switch (method) {
+        case'1':{
+            less_changes(stcp_copy,code_to_node[station],stcp_copy.n,walking_dist);
+            break;
+        }
+        case '2': {
+            less_stops(stcp_copy,code_to_node[station],stcp_copy.n,walking_dist);
+            break;
+        }
+        case '3': {
+            less_distance(stcp_copy,code_to_node[station],stcp_copy.n,walking_dist);
+            break;
+        }
+        case '4':{
+            less_zones(stcp_copy,code_to_node[station],stcp_copy.n,walking_dist);
+            break;
+        }
+    }
+}
 
+char Menu::choose_method() {
+    char answer;
+    cout<<endl;
+    cout << "Please enter an option." << endl;
+    cout << "1. Less Bus Changes." << endl;
+    cout << "2. Less Stops." << endl;
+    cout << "3. Less Distance Traveled." << endl;
+    cout << "4. Less money spent (fewer zones)." << endl;
+    cout << "5. Exit." << endl;
+    cout<<endl;
+    answer = readChar();
+    return answer;
+}
 
+void Menu::less_stops(Graph g, int initial_node, int final_node, long double walking_dist) {
+    auto start = chrono::high_resolution_clock::now();
+    g.add_walking(walking_dist);
+    cout << endl;
+    list<int> stops_changes = g.unweighted_path(initial_node,final_node);
+    for (int stop: stops_changes) {
+        cout << "Paragem: " << g.nodes[stop].name << "  Codigo: "
+             << g.nodes[stop].code << " Linha apanhada: " <<
+             g.nodes[stop].line << "  Zona: " << g.nodes[stop].zone << endl;
+    }
+    auto stop = chrono::high_resolution_clock::now();
+    cout << endl << "Results given in: " << chrono::duration_cast<chrono::seconds>(stop-start).count()<<" secs"<<endl;
+}
+
+void Menu::less_changes(Graph g, int initial_node, int final_node, long double walking_dist) {
+    auto start = chrono::high_resolution_clock::now();
+    g.add_walking(walking_dist);
+    cout << endl;
+    list<int> stops =  g.dijkstra_less_changes_path(initial_node,final_node,code_to_node);
+    for(int stop:stops){
+        cout << "Paragem: " << g.nodes[stop].name << "  Codigo: " << g.nodes[stop].code << " Linha a apanhar: "<<
+             g.nodes[stop].line << "  Zona: " <<g.nodes[stop].zone<<endl;
+    }
+    auto stop = chrono::high_resolution_clock::now();
+    cout << endl << "Results given in: " << chrono::duration_cast<chrono::seconds>(stop-start).count()<<" secs"<<endl;
+}
+
+void Menu::less_distance(Graph g, int initial_node, int final_node, long double walking_dist) {
+    auto start = chrono::high_resolution_clock::now();
+    g.add_walking(walking_dist);
+    cout << endl;
+    list<int> stops_distance = g.dijkstra_less_length_path(initial_node,final_node);
+    for (int stop: stops_distance) {
+        cout << "Paragem: " << g.nodes[stop].name << "  Codigo: "
+             << g.nodes[stop].code
+             << " Linha apanhada: " << g.nodes[stop].line << "  Zona: "
+             << g.nodes[stop].zone << endl;
+    }
+    cout << endl << "------" << endl << endl;
+    auto stop = chrono::high_resolution_clock::now();
+    cout << endl << "Results given in: " << chrono::duration_cast<chrono::seconds>(stop-start).count()<<" secs"<<endl;
+    cout << "Distance traveled = " << g.nodes[stops_distance.back()].dist << " km" << endl;
+}
+
+void Menu::less_zones(Graph g, int initial_node, int final_node, long double walking_dist) {
+    auto start = chrono::high_resolution_clock::now();
+    g.add_walking(walking_dist);
+    cout << endl;
+    list<int> zones_distance = g.dijkstra_less_zones_path(initial_node,final_node);
+    for(int stop:zones_distance){
+        cout << "Paragem: "<< g.nodes[stop].name << "  Codigo: " << g.nodes[stop].code << " Linha apanhada: "
+             <<g.nodes[stop].line << "  Zona: "<<g.nodes[stop].zone<<endl;
+    }
+    auto stop = chrono::high_resolution_clock::now();
+    cout << endl << "Results given in: " << chrono::duration_cast<chrono::seconds>(stop-start).count()<<" secs"<<endl;
+}
