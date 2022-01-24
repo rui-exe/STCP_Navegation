@@ -1,9 +1,10 @@
 #include <iostream>
 #include "STCP_Operations.h"
+#include "Menu.h"
 int main() {
+    /*
     STCP_Operations operations = STCP_Operations();
     unordered_map<string,int> code_to_node = operations.get_code_to_node();
-    /*
     list<int> stops_distance = operations.getStcp().dijkstra_less_length_path(code_to_node["FEUP1"],code_to_node["FCUP1"]);
     for(int stop:stops_distance){
         cout << operations.getStcp().nodes[stop].name << "--" << operations.getStcp().nodes[stop].code << "--" <<operations.getStcp().nodes[stop].line << "---"<<
@@ -41,12 +42,12 @@ int main() {
              operations.getStcp().nodes[stop].zone<<endl;
     }
     return 0;
-     */
+
     Graph stcp_copy =operations.getStcp_copy();
-    /*
+
     stcp_copy.add_location(41.18292646606174, -8.598989323909137);
     stcp_copy.add_location(41.17880629312572, -8.693166401315493);
-    */
+
     stcp_copy.add_walking(1.0);
     cout << endl << endl << endl;
     list<int> stops =  stcp_copy.dijkstra_less_changes_path(code_to_node["FEUP1"],code_to_node["FCUP1"],code_to_node);
@@ -54,7 +55,7 @@ int main() {
         cout << "Paragem: " << stcp_copy.nodes[stop].name << "  Codigo: " << stcp_copy.nodes[stop].code << " Linha a apanhar: "<<
        stcp_copy.nodes[stop].line << "  Zona: " <<stcp_copy.nodes[stop].zone<<endl;
     }
-
+*/
     /*
     cout << "----------------" << endl;
 
@@ -66,4 +67,6 @@ int main() {
         station_to_b_walking.nodes[stop].zone<<endl;
     }
     */
+    Menu m = Menu();
+    m.interface();
 }
