@@ -2,7 +2,7 @@
 #include "STCP_Operations.h"
 int main() {
     STCP_Operations operations = STCP_Operations();
-    map<string,int> code_to_node = operations.get_code_to_node();
+    unordered_map<string,int> code_to_node = operations.get_code_to_node();
     /*
     list<int> stops_distance = operations.getStcp().dijkstra_less_length_path(code_to_node["FEUP1"],code_to_node["FCUP1"]);
     for(int stop:stops_distance){
@@ -11,14 +11,20 @@ int main() {
     }
     cout << endl << "------" << endl << endl;
 
+     */
 
-    list<int> stops_changes = operations.getStcp().dijkstra_less_changes_path(code_to_node["FEUP1"],code_to_node["FCUP1"]);
+    Graph g = operations.getStcp();
+    Graph::Node x = g.nodes[1125];
+    Graph::Node y = g.nodes[868];
+    list<int> stops_changes = operations.getStcp().dijkstra_less_changes_path(code_to_node["VALC1"],code_to_node["CMP1"],code_to_node);
+
 
     for(int stop:stops_changes){
         cout << operations.getStcp().nodes[stop].name << "--" << operations.getStcp().nodes[stop].code << "--" <<operations.getStcp().nodes[stop].line << "----" <<
              operations.getStcp().nodes[stop].zone<<endl;
     }
 
+    /*
     cout << endl << "------" << endl << endl;
     list<int> min_stops = operations.getStcp().unweighted_path(code_to_node["FEUP1"],code_to_node["FCUP1"]);
     string line_2 = operations.getStcp().nodes[min_stops.front()].line;
@@ -36,11 +42,22 @@ int main() {
              operations.getStcp().nodes[stop].zone<<endl;
     }
     return 0;
-    */
-    Graph walking_graph = operations.getStcp().add_walking(2.0);
-    list<int> stops =  walking_graph.dijkstra_less_zones_path(code_to_node["VALC1"],code_to_node["FCUP1"]);
+    Graph a_to_station =operations.getStcp().a_to_station(41.18292646606174, -8.598989323909137);
+    Graph a_to_station_walking = a_to_station.add_walking(0.5);
+    list<int> stops =  a_to_station_walking.dijkstra_less_changes_path(a_to_station_walking.n,code_to_node["PCID4"]);
     for(int stop:stops){
-        cout << walking_graph.nodes[stop].name << "--" << walking_graph.nodes[stop].code << "--" <<walking_graph.nodes[stop].line << "---"<<
-             operations.getStcp().nodes[stop].zone<<endl;
+        cout << a_to_station_walking.nodes[stop].name << "--" << a_to_station_walking.nodes[stop].code << "--" <<a_to_station_walking.nodes[stop].line << "---"<<
+       a_to_station_walking.nodes[stop].zone<<endl;
     }
+
+    cout << "----------------" << endl;
+
+    Graph station_to_b =operations.getStcp().station_to_b(41.18292646606174, -8.598989323909137);
+    Graph station_to_b_walking = station_to_b.add_walking(0.5);
+    list<int> stops2 =  station_to_b_walking.dijkstra_less_changes_path(code_to_node["JB1"],station_to_b_walking.n);
+    for(int stop:stops2){
+        cout << station_to_b_walking.nodes[stop].name << "--" << station_to_b_walking.nodes[stop].code << "--" <<station_to_b_walking.nodes[stop].line << "---"<<
+        station_to_b_walking.nodes[stop].zone<<endl;
+    }
+    */
 }

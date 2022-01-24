@@ -48,7 +48,8 @@ public:
     vector<Node> nodes; // The list of nodes being represented
 
 
-    void dijkstra_less_changes(int s);
+
+    Graph stop_and_lines_graph(int a,int b);
     void dijkstra_less_length(int s);
     void dijkstra_less_zones(int s);
     // Constructor: nr nodes and direction (default: undirected)
@@ -60,13 +61,16 @@ public:
     // ----- Functions to implement in this class -----
     long double dijkstra_less_length_distance(int a, int b);
     list<int> dijkstra_less_length_path(int a, int b);
-    list<int> dijkstra_less_changes_path(int a, int b);
+    list<int> dijkstra_less_changes_path(int a, int b,unordered_map<string,int> code_to_node);
     list<int> dijkstra_less_zones_path(int a, int b);
     static long double dist_stops(const Node& previous_node,const Node& current_node);
     void bfs(int v);
     int unweighted_distance(int a, int b);
     Graph add_walking(long double dist);
+    Graph add_location(double latitude,double longitude);
     list<int> unweighted_path(int a,int b);
+
+
 };
 
 #endif

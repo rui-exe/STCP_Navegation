@@ -57,6 +57,7 @@ void Graph::dijkstra_less_zones(int s) {
         nodes[i].dist = numeric_limits<long double>::max()/2;
         nodes[i].zones = numeric_limits<int>::max() / 2;
         nodes[i].visited = false;
+        nodes[i].zones_used.clear();
     }
     nodes[s].dist=0;
     nodes[s].pred = s;
@@ -110,7 +111,7 @@ void Graph::dijkstra_less_zones(int s) {
 struct distance_changes{
     inline distance_changes(){
         this->distance = 0;
-        this-> changes = 0;
+        this->changes = 0;
     }
     inline distance_changes(distance_changes const &d){
         this->distance = d.distance;
@@ -138,50 +139,47 @@ struct distance_changes{
     }
 };
 
-void Graph::dijkstra_less_changes(int s) {
-    for(int i=1;i<nodes.size();i++){
-        nodes[i].dist = numeric_limits<long double>::max()/2;
-        nodes[i].line_changes = numeric_limits<int>::max()/2;
-        nodes[i].visited = false;
-        nodes[i].line="";
-    }
-    nodes[s].dist=0;
-    nodes[s].pred = s;
-    nodes[s].line_changes=0;
-    MinHeap<int,distance_changes> heap(nodes.size()-1,-1);
-    for(int i=1;i<nodes.size();i++){
-        heap.insert(i,distance_changes(nodes[i].dist,nodes[i].line_changes));
-    }
-    while(heap.getSize()>0){
-        int u = heap.removeMin();
-        nodes[u].visited = true;
-        for(Edge e:nodes[u].adj){
-            int v = e.dest;
-            if(!nodes[v].visited and (nodes[u].line!="walking" or e.line!="walking")){
-                int old_line_changes = nodes[v].line_changes;
-                int new_line_changes;
-                if (nodes[u].line != e.line)
-                    new_line_changes = nodes[u].line_changes + 1;
-                else
-                    new_line_changes = nodes[u].line_changes;
-                if (new_line_changes < old_line_changes) {
-                    nodes[v].line_changes = new_line_changes;
-                    nodes[v].dist = nodes[u].dist + e.weight;
-                    heap.decreaseKey(v, distance_changes(nodes[v].dist, nodes[v].line_changes));
-                    nodes[v].pred = u;
-                    nodes[v].line = e.line;
-                }
-
-                else if (nodes[v].line_changes == new_line_changes and nodes[u].dist + e.weight<nodes[v].dist) {
-                    nodes[v].dist = nodes[u].dist + e.weight;
-                    heap.decreaseKey(v, distance_changes(nodes[v].dist, nodes[v].line_changes));
-                    nodes[v].pred = u;
-                    nodes[v].line = e.line;
-                }
-
+Graph Graph::stop_and_lines_graph(int a,int b) {
+    Graph less_changes(0,true);
+    unordered_map<string,int> name_to_int;
+    name_to_int[nodes[b].code] = ++less_changes.n;
+    less_changes.nodes.push_back(Node());
+    less_changes.nodes[less_changes.n].code = nodes[b].code;
+    for(int i=1;i<=n;i++){
+        vector<string> lines_in_node;
+        for(Edge e:nodes[i].adj){
+            if(name_to_int.find(nodes[i].code+"-"+e.line)==name_to_int.end()) {
+                name_to_int[nodes[i].code + "-" + e.line] = ++less_changes.n;
+                less_changes.nodes.push_back(Node());
+                less_changes.nodes[less_changes.n].code = nodes[i].code + "-" + e.line;
+            }
+            if(name_to_int.find(nodes[e.dest].code+"-"+e.line)==name_to_int.end()) {
+                name_to_int[nodes[e.dest].code + "-" + e.line] = ++less_changes.n;
+                less_changes.nodes.push_back(Node());
+                less_changes.nodes[less_changes.n].code = nodes[e.dest].code + "-" + e.line;
+            }
+            less_changes.addEdge(name_to_int[nodes[i].code + "-" + e.line],name_to_int[nodes[e.dest].code + "-" + e.line],"",e.weight);
+            lines_in_node.push_back(e.line);
+            if(nodes[e.dest].code==nodes[b].code){
+                less_changes.addEdge(name_to_int[nodes[i].code + "-" + e.line],name_to_int[nodes[b].code],"",0);
+            }
+        }
+        for(int j=0;j<lines_in_node.size();j++){
+            for(int k=j+1;k<lines_in_node.size();k++) {
+                less_changes.addEdge(name_to_int[nodes[i].code +"-" +lines_in_node[j]],
+                                     name_to_int[nodes[i].code + "-"+lines_in_node[k]], "", 1000);
+                less_changes.addEdge(name_to_int[nodes[i].code + "-"+lines_in_node[k]],
+                                     name_to_int[nodes[i].code + "-"+lines_in_node[j]], "", 1000);
             }
         }
     }
+    less_changes.n++;
+    less_changes.nodes.push_back(Node());
+    less_changes.nodes[less_changes.n].code = nodes[a].code;
+    for(Edge e:nodes[a].adj){
+        less_changes.addEdge(less_changes.n,name_to_int[nodes[a].code+"-"+e.line],"",0);
+    }
+    return less_changes;
 }
 
 
@@ -200,17 +198,40 @@ list<int> Graph::dijkstra_less_zones_path(int a, int b){
     return path;
 }
 
-list<int> Graph::dijkstra_less_changes_path(int a,int b){
-    list<int> path;
-    dijkstra_less_changes(a);
-    if(nodes[b].dist==(numeric_limits<long double>::max()/2))
-        return path;
-    int dest = b;
-    while(dest!=a){
-        path.push_front(dest);
-        dest=nodes[dest].pred;
+pair<string,string> split(string word,char delim){
+    pair<string,string> answer;
+    string aux;
+    for(char c:word){
+        if(c==delim) {
+            answer.first=aux;
+            aux = "";
+        }
+        else
+            aux+=c;
     }
-    path.push_front(dest);
+    if(answer.first=="")
+        answer.first=aux;
+    else
+        answer.second=aux;
+    return answer;
+}
+
+list<int> Graph::dijkstra_less_changes_path(int a,int b,unordered_map<string,int> code_to_node){
+    Graph stop_and_lines = stop_and_lines_graph(a,b);
+    stop_and_lines.dijkstra_less_length(stop_and_lines.n);
+    list<int> path;
+    if(stop_and_lines.nodes[1].dist==(numeric_limits<long double>::max()/2))
+        return path;
+    int dest = 1;
+    while(dest!=stop_and_lines.n){
+        pair<string,string> stop_line = split(stop_and_lines.nodes[dest].code,'-');
+        path.push_front(code_to_node[stop_line.first]);
+        nodes[code_to_node[stop_line.first]].line=stop_line.second;
+        dest=stop_and_lines.nodes[dest].pred;
+    }
+    pair<string,string> stop_line = split(stop_and_lines.nodes[dest].code,'-');
+    path.push_front(code_to_node[stop_line.first]);
+    nodes[code_to_node[stop_line.first]].line=stop_line.second;
     return path;
 }
 
@@ -363,11 +384,21 @@ Graph Graph::add_walking(long double dist) {
     Graph walking_graph = *this;
     for (int i = 1; i <= n; i++) {
         for (int j = 1; j <= n; j++) {
-            if (dist_stops(walking_graph.nodes[i], walking_graph.nodes[j]) < dist)
+            if ((dist_stops(walking_graph.nodes[i], walking_graph.nodes[j]) < dist) and i!=j)
                 walking_graph.addEdge(i, j, "walking"), dist_stops(nodes[i], nodes[j]);
         }
     }
     return walking_graph;
+}
+
+Graph Graph::add_location(double latitude,double longitude){
+    Graph a_to_station = * this;
+    a_to_station.n++;
+    a_to_station.nodes.push_back(Node());
+    a_to_station.nodes[a_to_station.n].name = "Local inicial";
+    a_to_station.nodes[a_to_station.n].latitude = latitude;
+    a_to_station.nodes[a_to_station.n].longitude = longitude;
+    return a_to_station;
 }
 
 

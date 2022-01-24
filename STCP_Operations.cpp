@@ -59,6 +59,8 @@ void STCP_Operations::read_lines(){
         string bus_line = words[0];
         line_file0.open("line_"+ bus_line+"_0.csv");
         if(line_file0.is_open()) {
+            if(bus_line=="301")
+                cout << "gg";
             getline(line_file0, aux_number_stops);
             number_stops_in_line = stoi(aux_number_stops);
             string previous_bus_stop0;
@@ -94,11 +96,11 @@ void STCP_Operations::read_lines(){
     }
 }
 
-Graph STCP_Operations::getStcp() {
+Graph& STCP_Operations::getStcp() {
     return stcp;
 }
 
-map<string,int> STCP_Operations::get_code_to_node(){
+unordered_map<string,int> STCP_Operations::get_code_to_node(){
     return code_to_node;
 }
 

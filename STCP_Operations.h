@@ -7,21 +7,21 @@
 
 #include <fstream>
 #include <sstream>
-#include <map>
+#include <unordered_map>
 #include <cmath>
 #include "graph.h"
 using namespace std;
 
 class STCP_Operations {
 private:
-    map<string,int> code_to_node;
+    unordered_map<string,int> code_to_node;
     Graph stcp = Graph(0);
     void read_stops();
     void read_lines();
 public:
     STCP_Operations();
-    Graph getStcp();
-    map<string,int> get_code_to_node();
+    Graph& getStcp();
+    unordered_map<string,int> get_code_to_node();
 };
 
 
