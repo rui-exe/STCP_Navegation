@@ -66,10 +66,10 @@ public:
     static long double dist_stops(const Node& previous_node,const Node& current_node);
     void bfs(int v);
     int unweighted_distance(int a, int b);
-    Graph add_walking(long double dist);
-    Graph add_location(double latitude,double longitude);
+    void add_walking(long double dist);
+    void add_location(double latitude,double longitude);
     list<int> unweighted_path(int a,int b);
-
+    void dijkstra_less_changes(int s);
 
 };
 

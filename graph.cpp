@@ -161,13 +161,19 @@ Graph Graph::stop_and_lines_graph(int a,int b) {
             less_changes.addEdge(name_to_int[nodes[i].code + "-" + e.line],name_to_int[nodes[e.dest].code + "-" + e.line],"",e.weight);
             lines_in_node.push_back(e.line);
             if(nodes[e.dest].code==nodes[b].code){
-                less_changes.addEdge(name_to_int[nodes[i].code + "-" + e.line],name_to_int[nodes[b].code],"",0);
+                less_changes.addEdge(name_to_int[nodes[b].code + "-" + e.line],name_to_int[nodes[b].code],"",0);
             }
         }
         for(int j=0;j<lines_in_node.size();j++){
             for(int k=j+1;k<lines_in_node.size();k++) {
-                less_changes.addEdge(name_to_int[nodes[i].code +"-" +lines_in_node[j]],
-                                     name_to_int[nodes[i].code + "-"+lines_in_node[k]], "", 1000);
+                if (lines_in_node[k] == "walking") {
+                    less_changes.addEdge(name_to_int[nodes[i].code + "-" + lines_in_node[j]],
+                                         name_to_int[nodes[i].code + "-" + lines_in_node[k]], "", 0);
+                }
+                else {
+                less_changes.addEdge(name_to_int[nodes[i].code + "-" + lines_in_node[j]],
+                                     name_to_int[nodes[i].code + "-" + lines_in_node[k]], "", 1000);
+                }
                 less_changes.addEdge(name_to_int[nodes[i].code + "-"+lines_in_node[k]],
                                      name_to_int[nodes[i].code + "-"+lines_in_node[j]], "", 1000);
             }
@@ -176,8 +182,15 @@ Graph Graph::stop_and_lines_graph(int a,int b) {
     less_changes.n++;
     less_changes.nodes.push_back(Node());
     less_changes.nodes[less_changes.n].code = nodes[a].code;
+    bool line_walking=false;
     for(Edge e:nodes[a].adj){
-        less_changes.addEdge(less_changes.n,name_to_int[nodes[a].code+"-"+e.line],"",0);
+        Edge x = e;
+        if(!line_walking and e.line=="walking") {
+            less_changes.addEdge(less_changes.n, name_to_int[nodes[a].code + "-" + e.line], "", 0);
+            line_walking = true;
+        }
+        else if(e.line!="walking")
+            less_changes.addEdge(less_changes.n, name_to_int[nodes[a].code + "-" + e.line], "", 0);
     }
     return less_changes;
 }
@@ -216,22 +229,61 @@ pair<string,string> split(string word,char delim){
     return answer;
 }
 
+void Graph::dijkstra_less_changes(int s){
+    for(int i=1;i<nodes.size();i++){
+        nodes[i].dist = numeric_limits<long double>::max()/2;
+        nodes[i].visited = false;
+    }
+    nodes[s].dist=0;
+    nodes[s].pred = s;
+    MinHeap<int,long double> heap(nodes.size()-1,-1);
+    for(int i=1;i<nodes.size();i++){
+        heap.insert(i,nodes[i].dist);
+    }
+    while(heap.getSize()>0){
+        int u = heap.removeMin();
+        nodes[u].visited = true;
+        for(Edge e:nodes[u].adj){
+            int v = e.dest;
+            Node x = nodes[u];
+            Node y = nodes[v];
+            if(!nodes[v].visited and nodes[u].dist+e.weight<nodes[v].dist){
+                if(split(nodes[u].code,'-').second!="walking" or split(nodes[v].code,'-').second!="walking") {
+                    nodes[v].dist = nodes[u].dist + e.weight;
+                    heap.decreaseKey(v, nodes[v].dist);
+                    nodes[v].pred = u;
+                    if(split(nodes[u].code,'-').second=="walking")
+                        nodes[v].line="walking";
+                }
+                else if( nodes[u].line!="walking"){
+                    nodes[v].dist = nodes[u].dist + e.weight;
+                    heap.decreaseKey(v, nodes[v].dist);
+                    nodes[v].pred = u;
+                    nodes[v].line="walking";
+                }
+            }
+
+        }
+    }
+}
+
 list<int> Graph::dijkstra_less_changes_path(int a,int b,unordered_map<string,int> code_to_node){
     Graph stop_and_lines = stop_and_lines_graph(a,b);
-    stop_and_lines.dijkstra_less_length(stop_and_lines.n);
+    stop_and_lines.dijkstra_less_changes(stop_and_lines.n);
     list<int> path;
     if(stop_and_lines.nodes[1].dist==(numeric_limits<long double>::max()/2))
         return path;
     int dest = 1;
+    string previous_station;
     while(dest!=stop_and_lines.n){
         pair<string,string> stop_line = split(stop_and_lines.nodes[dest].code,'-');
-        path.push_front(code_to_node[stop_line.first]);
-        nodes[code_to_node[stop_line.first]].line=stop_line.second;
-        dest=stop_and_lines.nodes[dest].pred;
+        if(previous_station!=stop_line.first) {
+            previous_station = stop_line.first;
+            path.push_front(code_to_node[stop_line.first]);
+            nodes[code_to_node[stop_line.first]].line = stop_line.second;
+        }
+        dest = stop_and_lines.nodes[dest].pred;
     }
-    pair<string,string> stop_line = split(stop_and_lines.nodes[dest].code,'-');
-    path.push_front(code_to_node[stop_line.first]);
-    nodes[code_to_node[stop_line.first]].line=stop_line.second;
     return path;
 }
 
@@ -380,25 +432,21 @@ long double distance(long double lat1, long double long1,
     return ans;
 }
 
-Graph Graph::add_walking(long double dist) {
-    Graph walking_graph = *this;
+void Graph::add_walking(long double dist) {
     for (int i = 1; i <= n; i++) {
         for (int j = 1; j <= n; j++) {
-            if ((dist_stops(walking_graph.nodes[i], walking_graph.nodes[j]) < dist) and i!=j)
-                walking_graph.addEdge(i, j, "walking"), dist_stops(nodes[i], nodes[j]);
+            if ((dist_stops(nodes[i], nodes[j]) < dist) and i!=j)
+                this->addEdge(i, j, "walking"), dist_stops(nodes[i], nodes[j]);
         }
     }
-    return walking_graph;
 }
 
-Graph Graph::add_location(double latitude,double longitude){
-    Graph a_to_station = * this;
-    a_to_station.n++;
-    a_to_station.nodes.push_back(Node());
-    a_to_station.nodes[a_to_station.n].name = "Local inicial";
-    a_to_station.nodes[a_to_station.n].latitude = latitude;
-    a_to_station.nodes[a_to_station.n].longitude = longitude;
-    return a_to_station;
+void Graph::add_location(double latitude,double longitude){
+    this->n++;
+    nodes.push_back(Node());
+    nodes[n].name = "Local inicial";
+    nodes[n].latitude = latitude;
+    nodes[n].longitude = longitude;
 }
 
 

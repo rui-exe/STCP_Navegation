@@ -12,18 +12,17 @@ int main() {
     cout << endl << "------" << endl << endl;
 
      */
+    /*
 
-    Graph g = operations.getStcp();
-    Graph::Node x = g.nodes[1125];
-    Graph::Node y = g.nodes[868];
-    list<int> stops_changes = operations.getStcp().dijkstra_less_changes_path(code_to_node["VALC1"],code_to_node["CMP1"],code_to_node);
+    Graph g = operations.getStcp_reference();
+    list<int> stops_changes = operations.getStcp_reference().dijkstra_less_changes_path(code_to_node["VALC1"],code_to_node["CMP1"],code_to_node);
 
 
     for(int stop:stops_changes){
-        cout << operations.getStcp().nodes[stop].name << "--" << operations.getStcp().nodes[stop].code << "--" <<operations.getStcp().nodes[stop].line << "----" <<
-             operations.getStcp().nodes[stop].zone<<endl;
+        cout << "Paragem: " << operations.getStcp_reference().nodes[stop].name << "  Codigo: " << operations.getStcp_reference().nodes[stop].code << " Linha a apanhar: "<<
+      operations.getStcp_reference().nodes[stop].line << "  Zona: " <<operations.getStcp_reference().nodes[stop].zone<<endl;
     }
-
+    */
     /*
     cout << endl << "------" << endl << endl;
     list<int> min_stops = operations.getStcp().unweighted_path(code_to_node["FEUP1"],code_to_node["FCUP1"]);
@@ -42,14 +41,21 @@ int main() {
              operations.getStcp().nodes[stop].zone<<endl;
     }
     return 0;
-    Graph a_to_station =operations.getStcp().a_to_station(41.18292646606174, -8.598989323909137);
-    Graph a_to_station_walking = a_to_station.add_walking(0.5);
-    list<int> stops =  a_to_station_walking.dijkstra_less_changes_path(a_to_station_walking.n,code_to_node["PCID4"]);
+     */
+    Graph stcp_copy =operations.getStcp_copy();
+    /*
+    stcp_copy.add_location(41.18292646606174, -8.598989323909137);
+    stcp_copy.add_location(41.17880629312572, -8.693166401315493);
+    */
+    stcp_copy.add_walking(0.5);
+    cout << endl << endl << endl;
+    list<int> stops =  stcp_copy.dijkstra_less_changes_path(code_to_node["VALC1"],code_to_node["CMP1"],code_to_node);
     for(int stop:stops){
-        cout << a_to_station_walking.nodes[stop].name << "--" << a_to_station_walking.nodes[stop].code << "--" <<a_to_station_walking.nodes[stop].line << "---"<<
-       a_to_station_walking.nodes[stop].zone<<endl;
+        cout << "Paragem: " << stcp_copy.nodes[stop].name << "  Codigo: " << stcp_copy.nodes[stop].code << " Linha a apanhar: "<<
+       stcp_copy.nodes[stop].line << "  Zona: " <<stcp_copy.nodes[stop].zone<<endl;
     }
 
+    /*
     cout << "----------------" << endl;
 
     Graph station_to_b =operations.getStcp().station_to_b(41.18292646606174, -8.598989323909137);
