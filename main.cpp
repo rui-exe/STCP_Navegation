@@ -1,5 +1,7 @@
 #include <iostream>
+#include <chrono>
 #include "STCP_Operations.h"
+using namespace std;
 int main() {
     STCP_Operations operations = STCP_Operations();
     unordered_map<string,int> code_to_node = operations.get_code_to_node();
@@ -42,19 +44,30 @@ int main() {
     }
     return 0;
      */
+    auto start = chrono::high_resolution_clock::now();
     Graph stcp_copy =operations.getStcp_copy();
-    /*
-    stcp_copy.add_location(41.18292646606174, -8.598989323909137);
-    stcp_copy.add_location(41.17880629312572, -8.693166401315493);
-    */
-    stcp_copy.add_walking(1.0);
+    stcp_copy.add_initial_location(41.18298602687737, -8.598950817803937);
+    code_to_node["LI"] = stcp_copy.n;
+    stcp_copy.add_final_location(41.179271615778745, -8.690640977538155);
+    code_to_node["LF"] = stcp_copy.n;
+    stcp_copy.add_walking(3.0);
     cout << endl << endl << endl;
-    list<int> stops =  stcp_copy.dijkstra_less_changes_path(code_to_node["FEUP1"],code_to_node["FCUP1"],code_to_node);
+    list<int> stops =  stcp_copy.dijkstra_less_changes_path(stcp_copy.n-1,stcp_copy.n,code_to_node);
     for(int stop:stops){
         cout << "Paragem: " << stcp_copy.nodes[stop].name << "  Codigo: " << stcp_copy.nodes[stop].code << " Linha a apanhar: "<<
        stcp_copy.nodes[stop].line << "  Zona: " <<stcp_copy.nodes[stop].zone<<endl;
     }
+    auto stop = chrono::high_resolution_clock::now();
+    cout << endl << "Results given in: " << chrono::duration_cast<chrono::seconds>(stop-start).count();
 
+    /*
+    Graph g(2);
+    g.nodes[1].latitude=41.18296521099278;
+    g.nodes[1].longitude=-8.598970755099034;
+    g.nodes[2].latitude=41.1831144;
+    g.nodes[2].longitude=-8.599711386;
+    cout << endl << endl << "Dist: " << Graph::dist_stops(g.nodes[1],g.nodes[2]);
+     */
     /*
     cout << "----------------" << endl;
 

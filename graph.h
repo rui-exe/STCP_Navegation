@@ -68,7 +68,8 @@ public:
     void bfs(int v);
     int unweighted_distance(int a, int b);
     void add_walking(long double dist);
-    void add_location(double latitude,double longitude);
+    void add_initial_location(double latitude,double longitude);
+    void add_final_location(double latitude,double longitude);
     list<int> unweighted_path(int a,int b);
     void dijkstra_less_changes(int s);
 
