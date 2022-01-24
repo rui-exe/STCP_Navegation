@@ -146,7 +146,7 @@ Graph Graph::stop_and_lines_graph(int a,int b) {
     less_changes.nodes.push_back(Node());
     less_changes.nodes[less_changes.n].code = nodes[b].code;
     for(int i=1;i<=n;i++){
-        unordered_set<string> set_lines_in_node;
+        set<string> set_lines_in_node;
         vector<string> lines_in_node;
         for(Edge e:nodes[i].adj){
             if(name_to_int.find(nodes[i].code+"-"+e.line)==name_to_int.end()) {
@@ -198,6 +198,7 @@ Graph Graph::stop_and_lines_graph(int a,int b) {
         else if(e.line!="walking")
             less_changes.addEdge(less_changes.n, name_to_int[nodes[a].code + "-" + e.line], "", 0);
     }
+    Node x = less_changes.nodes[2000];
     return less_changes;
 }
 
@@ -282,6 +283,7 @@ list<int> Graph::dijkstra_less_changes_path(int a,int b,unordered_map<string,int
     int dest = 1;
     string previous_station;
     while(dest!=stop_and_lines.n){
+        Node x = stop_and_lines.nodes[dest];
         pair<string,string> stop_line = split(stop_and_lines.nodes[dest].code,'-');
         if(previous_station!=stop_line.first) {
             previous_station = stop_line.first;
@@ -447,14 +449,23 @@ void Graph::add_walking(long double dist) {
     }
 }
 
-void Graph::add_location(double latitude,double longitude){
+void Graph::add_initial_location(double latitude,double longitude){
     this->n++;
     nodes.push_back(Node());
     nodes[n].name = "Local inicial";
+    nodes[n].code = "LI";
     nodes[n].latitude = latitude;
     nodes[n].longitude = longitude;
 }
 
+void Graph::add_final_location(double latitude,double longitude){
+    this->n++;
+    nodes.push_back(Node());
+    nodes[n].name = "Local final";
+    nodes[n].code = "LF";
+    nodes[n].latitude = latitude;
+    nodes[n].longitude = longitude;
+}
 
 long double Graph::dist_stops(const Node& previous_node,const Node& current_node){
     return distance(previous_node.latitude,previous_node.longitude,
