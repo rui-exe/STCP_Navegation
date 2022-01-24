@@ -4,9 +4,9 @@
 #include "Menu.h"
 using namespace std;
 int main() {
-    /*
     STCP_Operations operations = STCP_Operations();
     unordered_map<string,int> code_to_node = operations.get_code_to_node();
+    /*
     list<int> stops_distance = operations.getStcp().dijkstra_less_length_path(code_to_node["FEUP1"],code_to_node["FCUP1"]);
     for(int stop:stops_distance){
         cout << operations.getStcp().nodes[stop].name << "--" << operations.getStcp().nodes[stop].code << "--" <<operations.getStcp().nodes[stop].line << "---"<<
@@ -14,7 +14,6 @@ int main() {
     }
     cout << endl << "------" << endl << endl;
 
-     */
     /*
 
     Graph g = operations.getStcp_reference();
@@ -52,14 +51,13 @@ int main() {
 
     stcp_copy.add_walking(1.0);
      */
-    /*
     auto start = chrono::high_resolution_clock::now();
     Graph stcp_copy =operations.getStcp_copy();
     stcp_copy.add_initial_location(41.18298602687737, -8.598950817803937);
     code_to_node["LI"] = stcp_copy.n;
     stcp_copy.add_final_location(41.179271615778745, -8.690640977538155);
     code_to_node["LF"] = stcp_copy.n;
-    stcp_copy.add_walking(3.0);
+    stcp_copy.add_walking(5.0);
     cout << endl << endl << endl;
     list<int> stops =  stcp_copy.dijkstra_less_changes_path(stcp_copy.n-1,stcp_copy.n,code_to_node);
     for(int stop:stops){
@@ -68,7 +66,6 @@ int main() {
     }
     auto stop = chrono::high_resolution_clock::now();
     cout << endl << "Results given in: " << chrono::duration_cast<chrono::seconds>(stop-start).count();
-    */
     /*
     Graph g(2);
     g.nodes[1].latitude=41.18296521099278;
@@ -77,6 +74,7 @@ int main() {
     g.nodes[2].longitude=-8.599711386;
     cout << endl << endl << "Dist: " << Graph::dist_stops(g.nodes[1],g.nodes[2]);
      */
+
     /*
     cout << "----------------" << endl;
 
@@ -86,8 +84,9 @@ int main() {
     for(int stop:stops2){
         cout << station_to_b_walking.nodes[stop].name << "--" << station_to_b_walking.nodes[stop].code << "--" <<station_to_b_walking.nodes[stop].line << "---"<<
         station_to_b_walking.nodes[stop].zone<<endl;
-    }
     */
+    /*
     Menu m = Menu();
     m.interface();
+     */
 }

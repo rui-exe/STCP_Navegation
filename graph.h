@@ -21,10 +21,42 @@ using namespace std;
 class Graph {
 
 public:
+    struct distance_changes{
+        inline distance_changes(){
+            this->distance = 0;
+            this->changes = 0;
+        }
+        inline distance_changes(distance_changes const &d){
+            this->distance = d.distance;
+            this->changes = d.changes;
+        }
+        inline distance_changes(long double distance,int changes){
+            this->distance = distance;
+            this->changes = changes;
+        }
+        long double distance;
+        int changes;
+        inline bool operator <(const distance_changes &d) const{
+            if(changes == d.changes)
+                return distance<d.distance;
+            else {
+                return changes < d.changes;
+            }
+        }
+        inline bool operator >(const distance_changes &d) const{
+            if(changes == d.changes)
+                return distance>d.distance;
+            else {
+                return changes > d.changes;
+            }
+        }
+    };
+
     struct Edge {
         int dest;   // Destination node
         string line;
         long double weight; // A double weight
+        bool changes;
     };
 
     struct Node {
@@ -57,7 +89,7 @@ public:
     Graph(int nodes, bool dir = false);
 
     // Add edge from source to destination with a certain weight
-    void addEdge(int src, int dest, string line,long double weight = 1);
+    void addEdge(int src, int dest, string line,long double weight = 1,bool changes=false);
 
     // ----- Functions to implement in this class -----
     long double dijkstra_less_length_distance(int a, int b);
