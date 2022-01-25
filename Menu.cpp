@@ -199,7 +199,7 @@ void Menu::coordinate_to_coordinate (long double walking_dist) {
     stcp_copy.add_initial_location(latitude1, longitude1);
     stcp_copy.add_final_location(latitude2,longitude2);
     code_to_node["LI"] = stcp_copy.n-1;
-    code_to_node["FI"] = stcp_copy.n;
+    code_to_node["LF"] = stcp_copy.n;
     char method = choose_method();
     switch (method) {
         case'1':{
@@ -307,7 +307,6 @@ void Menu::less_distance(Graph g, int initial_node, int final_node, long double 
              << " Linha apanhada: " << g.nodes[stop].line << "  Zona: "
              << g.nodes[stop].zone << endl;
     }
-    cout << endl << "------" << endl << endl;
     auto stop = chrono::high_resolution_clock::now();
     cout << endl << "Results given in: " << chrono::duration_cast<chrono::seconds>(stop-start).count()<<" secs"<<endl;
     cout << "Distance traveled = " << g.nodes[stops_distance.back()].dist << " km" << endl;

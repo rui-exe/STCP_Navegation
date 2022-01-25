@@ -9,12 +9,11 @@ Graph::Graph(int num, bool dir) : n(num), hasDir(dir), nodes(num+1) {
 }
 
 // Add edge from source to destination with a certain weight
-void Graph::addEdge(int src, int dest, string line,long double weight) {
+void Graph::addEdge(int src, int dest, string line,long double weight,bool changes) {
     if (src<1 || src>n || dest<1 || dest>n) return;
-    nodes[src].adj.push_back({dest,line, weight});
-    if (!hasDir) nodes[dest].adj.push_back({src,line, weight});
+    nodes[src].adj.push_back({dest,line, weight,changes});
+    if (!hasDir) nodes[dest].adj.push_back({src,line, weight,changes});
 }
-
 
 // ----------------------------------------------------------
 // 1) Algoritmo de Dijkstra e caminhos mais curtos
@@ -107,39 +106,8 @@ void Graph::dijkstra_less_zones(int s) {
 }
 
 
-
-struct distance_changes{
-    inline distance_changes(){
-        this->distance = 0;
-        this->changes = 0;
-    }
-    inline distance_changes(distance_changes const &d){
-        this->distance = d.distance;
-        this->changes = d.changes;
-    }
-    inline distance_changes(long double distance,int changes){
-        this->distance = distance;
-        this->changes = changes;
-    }
-    long double distance;
-    int changes;
-    inline bool operator <(const distance_changes &d) const{
-        if(changes == d.changes)
-            return distance<d.distance;
-        else {
-            return changes < d.changes;
-        }
-    }
-    inline bool operator >(const distance_changes &d) const{
-        if(changes == d.changes)
-            return distance>d.distance;
-        else {
-            return changes > d.changes;
-        }
-    }
-};
-
 Graph Graph::stop_and_lines_graph(int a,int b) {
+    bool line_walking=false;
     Graph less_changes(0,true);
     unordered_map<string,int> name_to_int;
     name_to_int[nodes[b].code] = ++less_changes.n;
@@ -159,10 +127,16 @@ Graph Graph::stop_and_lines_graph(int a,int b) {
                 less_changes.nodes.push_back(Node());
                 less_changes.nodes[less_changes.n].code = nodes[e.dest].code + "-" + e.line;
             }
-            less_changes.addEdge(name_to_int[nodes[i].code + "-" + e.line],name_to_int[nodes[e.dest].code + "-" + e.line],"",e.weight);
+            less_changes.addEdge(name_to_int[nodes[i].code + "-" + e.line],name_to_int[nodes[e.dest].code + "-" + e.line],"",
+                                 e.weight,false);
             set_lines_in_node.insert(e.line);
-            if(nodes[e.dest].code==nodes[b].code){
-                less_changes.addEdge(name_to_int[nodes[b].code + "-" + e.line],name_to_int[nodes[b].code],"",0);
+            if(nodes[e.dest].code==nodes[b].code){ //edges from b-linex to b, not repeating b-walking
+                if(!line_walking and e.line=="walking") {
+                    less_changes.addEdge(name_to_int[nodes[b].code + "-" + e.line], name_to_int[nodes[b].code], "",0,false);
+                    line_walking = true;
+                }
+                else if(e.line!="walking")
+                    less_changes.addEdge(name_to_int[nodes[b].code + "-" + e.line], name_to_int[nodes[b].code], "",0,false);
             }
         }
 
@@ -170,35 +144,33 @@ Graph Graph::stop_and_lines_graph(int a,int b) {
             lines_in_node.push_back(*set_lines_in_node.begin());
             set_lines_in_node.erase(set_lines_in_node.begin());
         }
-        for(int j=0;j<lines_in_node.size();j++){
-            for(int k=j+1;k<lines_in_node.size();k++) {
+        for(int j=0;j<lines_in_node.size();j++){ //nodes to change line, 0 changes if changing to a walking line, that change is considered when changing back to
+            for(int k=j+1;k<lines_in_node.size();k++) {  //a regular line
                 if (lines_in_node[k] == "walking") {
                     less_changes.addEdge(name_to_int[nodes[i].code + "-" + lines_in_node[j]],
-                                         name_to_int[nodes[i].code + "-" + lines_in_node[k]], "", 0);
+                                         name_to_int[nodes[i].code + "-" + lines_in_node[k]], "",0,false);
                 }
                 else {
                 less_changes.addEdge(name_to_int[nodes[i].code + "-" + lines_in_node[j]],
-                                     name_to_int[nodes[i].code + "-" + lines_in_node[k]], "", 1000);
+                                     name_to_int[nodes[i].code + "-" + lines_in_node[k]], "",0,true);
                 }
                 less_changes.addEdge(name_to_int[nodes[i].code + "-"+lines_in_node[k]],
-                                     name_to_int[nodes[i].code + "-"+lines_in_node[j]], "", 1000);
+                                     name_to_int[nodes[i].code + "-"+lines_in_node[j]], "",0,true);
             }
         }
     }
     less_changes.n++;
     less_changes.nodes.push_back(Node());
     less_changes.nodes[less_changes.n].code = nodes[a].code;
-    bool line_walking=false;
-    for(Edge e:nodes[a].adj){
-        Edge x = e;
+    line_walking=false;
+    for(Edge e:nodes[a].adj){ //edges from a to a-linex ,not repeating a-walking
         if(!line_walking and e.line=="walking") {
-            less_changes.addEdge(less_changes.n, name_to_int[nodes[a].code + "-" + e.line], "", 0);
+            less_changes.addEdge(less_changes.n, name_to_int[nodes[a].code + "-" + e.line], "",0,false);
             line_walking = true;
         }
         else if(e.line!="walking")
-            less_changes.addEdge(less_changes.n, name_to_int[nodes[a].code + "-" + e.line], "", 0);
+            less_changes.addEdge(less_changes.n, name_to_int[nodes[a].code + "-" + e.line], "",0,false);
     }
-    Node x = less_changes.nodes[2000];
     return less_changes;
 }
 
@@ -239,37 +211,58 @@ pair<string,string> split(string word,char delim){
 void Graph::dijkstra_less_changes(int s){
     for(int i=1;i<nodes.size();i++){
         nodes[i].dist = numeric_limits<long double>::max()/2;
+        nodes[i].line_changes = numeric_limits<int>::max()/2;
         nodes[i].visited = false;
     }
     nodes[s].dist=0;
+    nodes[s].line_changes = 0;
     nodes[s].pred = s;
-    MinHeap<int,long double> heap(nodes.size()-1,-1);
+    MinHeap<int,distance_changes> heap(nodes.size()-1,-1);
     for(int i=1;i<nodes.size();i++){
-        heap.insert(i,nodes[i].dist);
+        heap.insert(i,{nodes[i].dist,nodes[i].line_changes});
     }
     while(heap.getSize()>0){
         int u = heap.removeMin();
         nodes[u].visited = true;
+        string src = nodes[u].code;
         for(Edge e:nodes[u].adj){
             int v = e.dest;
-            Node x = nodes[u];
-            Node y = nodes[v];
-            if(!nodes[v].visited and nodes[u].dist+e.weight<nodes[v].dist){
-                if(split(nodes[u].code,'-').second!="walking" or split(nodes[v].code,'-').second!="walking") {
-                    nodes[v].dist = nodes[u].dist + e.weight;
-                    heap.decreaseKey(v, nodes[v].dist);
-                    nodes[v].pred = u;
-                    if(split(nodes[u].code,'-').second=="walking")
-                        nodes[v].line="walking";
+            if(!nodes[v].visited) {
+                if (nodes[u].line_changes + e.changes < nodes[v].line_changes) {
+                    string dest = nodes[v].code;
+                    if (split(nodes[u].code, '-').second != "walking" or
+                        split(nodes[v].code, '-').second != "walking") {
+                        nodes[v].line_changes = nodes[u].line_changes + e.changes;
+                        nodes[v].dist = nodes[u].dist + e.weight;
+                        heap.decreaseKey(v, {nodes[v].dist, nodes[v].line_changes});
+                        nodes[v].pred = u;
+                        if (split(nodes[u].code, '-').second == "walking")
+                            nodes[v].line = "walking";
+                    } else if (nodes[u].line != "walking") {
+                        nodes[v].line_changes = nodes[u].line_changes + e.changes;
+                        nodes[v].dist = nodes[u].dist + e.weight;
+                        heap.decreaseKey(v, {nodes[v].dist, nodes[v].line_changes});
+                        nodes[v].pred = u;
+                        nodes[v].line = "walking";
+                    }
                 }
-                else if( nodes[u].line!="walking"){
-                    nodes[v].dist = nodes[u].dist + e.weight;
-                    heap.decreaseKey(v, nodes[v].dist);
-                    nodes[v].pred = u;
-                    nodes[v].line="walking";
+                else if (nodes[u].line_changes + e.changes == nodes[v].line_changes and
+                            nodes[u].dist + e.weight< nodes[v].dist) {
+                    if (split(nodes[u].code, '-').second != "walking" or
+                        split(nodes[v].code, '-').second != "walking") {
+                        nodes[v].dist = nodes[u].dist + e.weight;
+                        heap.decreaseKey(v, {nodes[v].dist, nodes[v].line_changes});
+                        nodes[v].pred = u;
+                        if (split(nodes[u].code, '-').second == "walking")
+                            nodes[v].line = "walking";
+                    } else if (nodes[u].line != "walking") {
+                        nodes[v].dist = nodes[u].dist + e.weight;
+                        heap.decreaseKey(v, {nodes[v].dist, nodes[v].line_changes});
+                        nodes[v].pred = u;
+                        nodes[v].line = "walking";
+                    }
                 }
             }
-
         }
     }
 }
@@ -444,7 +437,7 @@ void Graph::add_walking(long double dist) {
     for (int i = 1; i <= n; i++) {
         for (int j = 1; j <= n; j++) {
             if ((dist_stops(nodes[i], nodes[j]) < dist) and i!=j)
-                this->addEdge(i, j, "walking"), dist_stops(nodes[i], nodes[j]);
+                this->addEdge(i, j, "walking", dist_stops(nodes[i], nodes[j]));
         }
     }
 }
@@ -469,5 +462,5 @@ void Graph::add_final_location(double latitude,double longitude){
 
 long double Graph::dist_stops(const Node& previous_node,const Node& current_node){
     return distance(previous_node.latitude,previous_node.longitude,
-                  current_node.latitude,current_node.longitude);
+                                    current_node.latitude,current_node.longitude);
 }
