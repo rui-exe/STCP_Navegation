@@ -437,7 +437,7 @@ void Graph::add_walking(long double dist) {
     for (int i = 1; i <= n; i++) {
         for (int j = 1; j <= n; j++) {
             if ((dist_stops(nodes[i], nodes[j]) < dist) and i!=j)
-                this->addEdge(i, j, "walking"), dist_stops(nodes[i], nodes[j]);
+                this->addEdge(i, j, "walking", dist_stops(nodes[i], nodes[j]));
         }
     }
 }
@@ -462,5 +462,5 @@ void Graph::add_final_location(double latitude,double longitude){
 
 long double Graph::dist_stops(const Node& previous_node,const Node& current_node){
     return distance(previous_node.latitude,previous_node.longitude,
-                  current_node.latitude,current_node.longitude);
+                                    current_node.latitude,current_node.longitude);
 }

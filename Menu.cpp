@@ -307,7 +307,6 @@ void Menu::less_distance(Graph g, int initial_node, int final_node, long double 
              << " Linha apanhada: " << g.nodes[stop].line << "  Zona: "
              << g.nodes[stop].zone << endl;
     }
-    cout << endl << "------" << endl << endl;
     auto stop = chrono::high_resolution_clock::now();
     cout << endl << "Results given in: " << chrono::duration_cast<chrono::seconds>(stop-start).count()<<" secs"<<endl;
     cout << "Distance traveled = " << g.nodes[stops_distance.back()].dist << " km" << endl;
