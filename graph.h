@@ -21,6 +21,10 @@ using namespace std;
 class Graph {
 
 public:
+    /**
+    * A struct that basically serves our notion of distance between the graph's nodes.
+    * This one prioritizes less zones used and then prioritizes less bus changes.
+    */
     struct zones_line_changes{
         inline zones_line_changes(){
             this->line_changes = 0;
@@ -51,6 +55,10 @@ public:
             }
         }
     };
+    /**
+     * A struct that basically serves our notion of distance between the graph's nodes.
+     * This one prioritizes less bus line changes and then prioritizes the distance traveled.
+     */
     struct changes_dist{
         inline changes_dist(){
             this->distance = 0;
@@ -81,7 +89,10 @@ public:
             }
         }
     };
-
+    /**
+     * A struct that basically serves our notion of distance between the graph's nodes.
+     * This one prioritizes less distance traveled and then prioritizes less bus line changes.
+     */
     struct distance_changes{
         inline distance_changes(){
             this->distance = 0;
@@ -144,22 +155,26 @@ public:
 
 
     Graph stop_and_lines_graph(int a,int b);
+    /**
+     * Calculates the distance in kilometers to every node of the graph starting on the start node s
+     * @param s int representing the node in which we want to start and calculate the distance to the other nodes
+     */
     void dijkstra_less_length(int s);
+    /**
+     * Calculates the distance in terms of line changes to every node of the graph starting on the start node s
+     * @param s int representing the node in which we want to start and calculate the distance to the other nodes
+     */
     void dijkstra_less_zones(int s);
     // Constructor: nr nodes and direction (default: undirected)
     Graph(int nodes, bool dir = false);
 
     // Add edge from source to destination with a certain weight
     void addEdge(int src, int dest, string line,long double weight = 1,bool changes=false);
-
-    // ----- Functions to implement in this class -----
-    long double dijkstra_less_length_distance(int a, int b);
     list<int> dijkstra_less_length_path(int a, int b,unordered_map<string,int> code_to_node);
     list<int> dijkstra_less_changes_path(int a, int b,unordered_map<string,int> code_to_node);
     list<int> dijkstra_less_zones_path(int a, int b,unordered_map<string,int> code_to_node);
     static long double dist_stops(const Node& previous_node,const Node& current_node);
     void bfs(int v);
-    int unweighted_distance(int a, int b);
     void add_walking(long double dist);
     void add_initial_location(double latitude,double longitude);
     void add_final_location(double latitude,double longitude);

@@ -347,17 +347,6 @@ void Graph::dijkstra_less_length(int s) {
     }
 }
 
-// ..............................
-// a) Distância entre dois nós
-// TODO
-long double Graph::dijkstra_less_length_distance(int a, int b) {
-    dijkstra_less_length(a);
-    return nodes[b].dist==(numeric_limits<long double>::max()/2)?-1:nodes[b].dist;
-}
-
-// ..............................
-// b) Caminho mais curto entre dois nós
-// TODO
 list<int> Graph::dijkstra_less_length_path(int a, int b,unordered_map<string,int> code_to_node) {
     Graph stop_and_lines = stop_and_lines_graph(a,b);
     stop_and_lines.dijkstra_less_length(stop_and_lines.n);
@@ -401,17 +390,6 @@ void Graph::bfs(int v) {
     }
 }
 
-
-int Graph::unweighted_distance(int a, int b){
-    for(int i=1;i<=n;i++){
-        nodes[i].unweighted_distance=0;
-    }
-    bfs(a);
-    if(a!=b and nodes[b].unweighted_distance==0)
-        return -1;
-    else
-        return nodes[b].unweighted_distance;
-}
 
 list<int> Graph::unweighted_path(int a,int b){
     list<int> path;
