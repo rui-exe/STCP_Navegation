@@ -21,6 +21,37 @@ using namespace std;
 class Graph {
 
 public:
+    struct changes_dist{
+        inline changes_dist(){
+            this->distance = 0;
+            this->changes = 0;
+        }
+        inline changes_dist(changes_dist const &d){
+            this->distance = d.distance;
+            this->changes = d.changes;
+        }
+        inline changes_dist(long double distance,int changes){
+            this->distance = distance;
+            this->changes = changes;
+        }
+        long double distance;
+        int changes;
+        inline bool operator <(const changes_dist &d) const{
+            if(changes == d.changes)
+                return distance<d.distance;
+            else {
+                return changes < d.changes;
+            }
+        }
+        inline bool operator >(const changes_dist &d) const{
+            if(changes == d.changes)
+                return distance>d.distance;
+            else {
+                return changes > d.changes;
+            }
+        }
+    };
+
     struct distance_changes{
         inline distance_changes(){
             this->distance = 0;
@@ -37,17 +68,17 @@ public:
         long double distance;
         int changes;
         inline bool operator <(const distance_changes &d) const{
-            if(changes == d.changes)
-                return distance<d.distance;
+            if(distance == d.distance)
+                return changes<d.changes;
             else {
-                return changes < d.changes;
+                return distance < d.distance;
             }
         }
         inline bool operator >(const distance_changes &d) const{
-            if(changes == d.changes)
-                return distance>d.distance;
+            if(distance == d.distance)
+                return changes>d.changes;
             else {
-                return changes > d.changes;
+                return distance > d.distance;
             }
         }
     };
@@ -93,7 +124,7 @@ public:
 
     // ----- Functions to implement in this class -----
     long double dijkstra_less_length_distance(int a, int b);
-    list<int> dijkstra_less_length_path(int a, int b);
+    list<int> dijkstra_less_length_path(int a, int b,unordered_map<string,int> code_to_node);
     list<int> dijkstra_less_changes_path(int a, int b,unordered_map<string,int> code_to_node);
     list<int> dijkstra_less_zones_path(int a, int b);
     static long double dist_stops(const Node& previous_node,const Node& current_node);

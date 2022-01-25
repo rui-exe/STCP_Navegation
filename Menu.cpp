@@ -82,6 +82,8 @@ void Menu::plan_trip() {
     char option;
     cout<<"How many km are you willing to walk on foot (max:1km): ";
     cin>>walking_dist;
+    g = operations.getStcp_copy();
+    g.add_walking(walking_dist);
     while (!cin.eof() and option != '5') {
         cout<<endl;
         cout << "Please enter an option" << endl;
@@ -127,23 +129,22 @@ void Menu::station_to_station(long double walking_dist) {
     stationA=read_string();
     cout << "Code of Station B: ";
     stationB = read_string();
-    Graph stcp_copy = operations.getStcp_copy();
     char method = choose_method();
     switch (method) {
         case'1':{
-            less_changes(stcp_copy,code_to_node[stationA],code_to_node[stationB],walking_dist);
+            less_changes(g,code_to_node[stationA],code_to_node[stationB],walking_dist);
             break;
         }
         case '2': {
-            less_stops(stcp_copy,code_to_node[stationA],code_to_node[stationB],walking_dist);
+            less_stops(g,code_to_node[stationA],code_to_node[stationB],walking_dist);
             break;
         }
         case '3': {
-            less_distance(stcp_copy,code_to_node[stationA],code_to_node[stationB],walking_dist);
+            less_distance(g,code_to_node[stationA],code_to_node[stationB],walking_dist);
             break;
         }
         case '4':{
-            less_zones(stcp_copy,code_to_node[stationA],code_to_node[stationB],walking_dist);
+            less_zones(g,code_to_node[stationA],code_to_node[stationB],walking_dist);
             break;
         }
     }
@@ -271,7 +272,6 @@ char Menu::choose_method() {
 
 void Menu::less_stops(Graph g, int initial_node, int final_node, long double walking_dist) {
     auto start = chrono::high_resolution_clock::now();
-    g.add_walking(walking_dist);
     cout << endl;
     list<int> stops_changes = g.unweighted_path(initial_node,final_node);
     for (int stop: stops_changes) {
@@ -283,9 +283,8 @@ void Menu::less_stops(Graph g, int initial_node, int final_node, long double wal
     cout << endl << "Results given in: " << chrono::duration_cast<chrono::seconds>(stop-start).count()<<" secs"<<endl;
 }
 
-void Menu::less_changes(Graph g, int initial_node, int final_node, long double walking_dist) {
+void Menu::less_changes(Graph g, int initial_node, int final_node, long double walking_dist){
     auto start = chrono::high_resolution_clock::now();
-    g.add_walking(walking_dist);
     cout << endl;
     list<int> stops =  g.dijkstra_less_changes_path(initial_node,final_node,code_to_node);
     for(int stop:stops){
@@ -298,9 +297,8 @@ void Menu::less_changes(Graph g, int initial_node, int final_node, long double w
 
 void Menu::less_distance(Graph g, int initial_node, int final_node, long double walking_dist) {
     auto start = chrono::high_resolution_clock::now();
-    g.add_walking(walking_dist);
     cout << endl;
-    list<int> stops_distance = g.dijkstra_less_length_path(initial_node,final_node);
+    list<int> stops_distance = g.dijkstra_less_length_path(initial_node,final_node,code_to_node);
     for (int stop: stops_distance) {
         cout << "Paragem: " << g.nodes[stop].name << "  Codigo: "
              << g.nodes[stop].code
@@ -314,7 +312,6 @@ void Menu::less_distance(Graph g, int initial_node, int final_node, long double 
 
 void Menu::less_zones(Graph g, int initial_node, int final_node, long double walking_dist) {
     auto start = chrono::high_resolution_clock::now();
-    g.add_walking(walking_dist);
     cout << endl;
     list<int> zones_distance = g.dijkstra_less_zones_path(initial_node,final_node);
     for(int stop:zones_distance){
