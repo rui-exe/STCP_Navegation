@@ -313,7 +313,7 @@ void Menu::less_distance(Graph g, int initial_node, int final_node, long double 
 void Menu::less_zones(Graph g, int initial_node, int final_node, long double walking_dist) {
     auto start = chrono::high_resolution_clock::now();
     cout << endl;
-    list<int> zones_distance = g.dijkstra_less_zones_path(initial_node,final_node);
+    list<int> zones_distance = g.dijkstra_less_zones_path(initial_node,final_node,code_to_node);
     for(int stop:zones_distance){
         cout << "Paragem: "<< g.nodes[stop].name << "  Codigo: " << g.nodes[stop].code << " Linha apanhada: "
              <<g.nodes[stop].line << "  Zona: "<<g.nodes[stop].zone<<endl;

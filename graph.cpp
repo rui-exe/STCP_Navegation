@@ -19,59 +19,45 @@ void Graph::addEdge(int src, int dest, string line,long double weight,bool chang
 // 1) Algoritmo de Dijkstra e caminhos mais curtos
 // ----------------------------------------------------------
 
-struct distance_zone_changes{
-    inline distance_zone_changes(){
-        this->distance = 0;
-        this->changes = 0;
-    }
-    inline distance_zone_changes(distance_zone_changes const &d){
-        this->distance = d.distance;
-        this->changes = d.changes;
-    }
-    inline distance_zone_changes(long double distance,int changes){
-        this->distance = distance;
-        this->changes = changes;
-    }
-    long double distance;
-    int changes;
-    inline bool operator <(const distance_zone_changes &d) const{
-        if(changes == d.changes)
-            return distance<d.distance;
-        else {
-            return changes < d.changes;
+pair<string,string> split(string word,char delim){
+    pair<string,string> answer;
+    string aux;
+    for(char c:word){
+        if(c==delim) {
+            answer.first=aux;
+            aux = "";
         }
+        else
+            aux+=c;
     }
-    inline bool operator >(const distance_zone_changes &d) const{
-        if(changes == d.changes)
-            return distance>d.distance;
-        else {
-            return changes > d.changes;
-        }
-    }
-};
+    if(answer.first=="")
+        answer.first=aux;
+    else
+        answer.second=aux;
+    return answer;
+}
 
 
 void Graph::dijkstra_less_zones(int s) {
     for(int i=1;i<nodes.size();i++){
-        nodes[i].dist = numeric_limits<long double>::max()/2;
         nodes[i].zones = numeric_limits<int>::max() / 2;
+        nodes[i].line_changes = numeric_limits<int>::max() / 2;
         nodes[i].visited = false;
         nodes[i].zones_used.clear();
     }
-    nodes[s].dist=0;
     nodes[s].pred = s;
     nodes[s].zones=1;
     nodes[s].zones_used.insert(nodes[s].zone);
-    MinHeap<int,distance_zone_changes> heap(nodes.size()-1,-1);
+    MinHeap<int,zones_line_changes> heap(nodes.size()-1,-1);
     for(int i=1;i<nodes.size();i++){
-        heap.insert(i,distance_zone_changes(nodes[i].dist,nodes[i].zones));
+        heap.insert(i,{nodes[i].line_changes,nodes[i].zones});
     }
     while(heap.getSize()>0){
         int u = heap.removeMin();
         nodes[u].visited = true;
-        for(const Edge& e:nodes[u].adj){
+        for(Edge e:nodes[u].adj){
             int v = e.dest;
-            if(!nodes[v].visited and (nodes[u].line!="walking" or e.line!="walking")) {
+            if(!nodes[v].visited) {
                 int old_zone_changes = nodes[v].zones;
                 int new_zone_changes;
                 if (nodes[u].zones_used.find(nodes[v].zone)==nodes[u].zones_used.end()) {
@@ -80,26 +66,49 @@ void Graph::dijkstra_less_zones(int s) {
                 else
                     new_zone_changes = nodes[u].zones_used.size();
                 if (new_zone_changes < old_zone_changes) {
-                    nodes[v].zones_used = nodes[u].zones_used;
-                    if(nodes[v].zones_used.find(nodes[v].zone)==nodes[v].zones_used.end())
-                        nodes[v].zones_used.insert(nodes[v].zone);
-                    nodes[v].zones = new_zone_changes;
-                    nodes[v].dist = nodes[u].dist + e.weight;
-                    heap.decreaseKey(v, distance_zone_changes(nodes[v].dist, nodes[v].zones));
-                    nodes[v].pred = u;
-                    nodes[v].line = e.line;
+                    if (split(nodes[u].code, '-').second != "walking" or
+                        split(nodes[v].code, '-').second != "walking") {
+                        nodes[v].zones_used = nodes[u].zones_used;
+                        if(nodes[v].zones_used.find(nodes[v].zone)==nodes[v].zones_used.end())
+                            nodes[v].zones_used.insert(nodes[v].zone);
+                        nodes[v].line_changes = nodes[u].line_changes + e.changes;
+                        nodes[v].zones = new_zone_changes;
+                        heap.decreaseKey(v, {nodes[v].line_changes, nodes[v].zones});
+                        nodes[v].pred = u;
+                        if (split(nodes[u].code, '-').second == "walking")
+                            nodes[v].line = "walking";
+                    } else if (nodes[u].line != "walking")
+                        nodes[v].zones_used = nodes[u].zones_used;
+                        if(nodes[v].zones_used.find(nodes[v].zone)==nodes[v].zones_used.end())
+                            nodes[v].zones_used.insert(nodes[v].zone);
+                        nodes[v].line_changes = nodes[u].line_changes + e.changes;
+                        nodes[v].zones = new_zone_changes;
+                        heap.decreaseKey(v, {nodes[v].line_changes, nodes[v].zones});
+                        nodes[v].pred = u;
+                    }
+                else if (new_zone_changes == old_zone_changes and
+                         nodes[u].line_changes + e.changes< nodes[v].line_changes) {
+                    if (split(nodes[u].code, '-').second != "walking" or
+                        split(nodes[v].code, '-').second != "walking") {
+                        nodes[v].zones_used = nodes[u].zones_used;
+                        if(nodes[v].zones_used.find(nodes[v].zone)==nodes[v].zones_used.end())
+                            nodes[v].zones_used.insert(nodes[v].zone);
+                        nodes[v].line_changes = nodes[u].line_changes + e.changes;
+                        nodes[v].zones = new_zone_changes;
+                        heap.decreaseKey(v, {nodes[v].line_changes, nodes[v].zones});
+                        nodes[v].pred = u;
+                        if (split(nodes[u].code, '-').second == "walking")
+                            nodes[v].line = "walking";
+                    } else if (nodes[u].line != "walking") {
+                        nodes[v].zones_used = nodes[u].zones_used;
+                        if(nodes[v].zones_used.find(nodes[v].zone)==nodes[v].zones_used.end())
+                            nodes[v].zones_used.insert(nodes[v].zone);
+                        nodes[v].line_changes = nodes[u].line_changes + e.changes;
+                        nodes[v].zones = new_zone_changes;
+                        heap.decreaseKey(v, {nodes[v].line_changes, nodes[v].zones});
+                        nodes[v].pred = u;
+                    }
                 }
-
-                else if (nodes[v].zones == new_zone_changes and nodes[u].dist + e.weight < nodes[v].dist) {
-                    nodes[v].zones_used = nodes[u].zones_used;
-                    if(nodes[v].zones_used.find(nodes[v].zone)==nodes[v].zones_used.end())
-                        nodes[v].zones_used.insert(nodes[v].zone);
-                    nodes[v].dist = nodes[u].dist + e.weight;
-                    heap.decreaseKey(v, distance_zone_changes(nodes[v].dist, nodes[v].zones));
-                    nodes[v].pred = u;
-                    nodes[v].line = e.line;
-                }
-
             }
         }
     }
@@ -113,19 +122,22 @@ Graph Graph::stop_and_lines_graph(int a,int b) {
     name_to_int[nodes[b].code] = ++less_changes.n;
     less_changes.nodes.push_back(Node());
     less_changes.nodes[less_changes.n].code = nodes[b].code;
+    less_changes.nodes[less_changes.n].zone = nodes[b].zone;
     for(int i=1;i<=n;i++){
-        set<string> set_lines_in_node;
+        unordered_set<string> set_lines_in_node;
         vector<string> lines_in_node;
         for(Edge e:nodes[i].adj){
             if(name_to_int.find(nodes[i].code+"-"+e.line)==name_to_int.end()) {
                 name_to_int[nodes[i].code + "-" + e.line] = ++less_changes.n;
                 less_changes.nodes.push_back(Node());
                 less_changes.nodes[less_changes.n].code = nodes[i].code + "-" + e.line;
+                less_changes.nodes[less_changes.n].zone = nodes[i].zone;
             }
             if(name_to_int.find(nodes[e.dest].code+"-"+e.line)==name_to_int.end()) {
                 name_to_int[nodes[e.dest].code + "-" + e.line] = ++less_changes.n;
                 less_changes.nodes.push_back(Node());
                 less_changes.nodes[less_changes.n].code = nodes[e.dest].code + "-" + e.line;
+                less_changes.nodes[less_changes.n].zone = nodes[e.dest].zone;
             }
             less_changes.addEdge(name_to_int[nodes[i].code + "-" + e.line],name_to_int[nodes[e.dest].code + "-" + e.line],"",
                                  e.weight,false);
@@ -162,6 +174,7 @@ Graph Graph::stop_and_lines_graph(int a,int b) {
     less_changes.n++;
     less_changes.nodes.push_back(Node());
     less_changes.nodes[less_changes.n].code = nodes[a].code;
+    less_changes.nodes[less_changes.n].zone = nodes[a].zone;
     line_walking=false;
     for(Edge e:nodes[a].adj){ //edges from a to a-linex ,not repeating a-walking
         if(!line_walking and e.line=="walking") {
@@ -176,36 +189,24 @@ Graph Graph::stop_and_lines_graph(int a,int b) {
 
 
 
-list<int> Graph::dijkstra_less_zones_path(int a, int b){
+list<int> Graph::dijkstra_less_zones_path(int a, int b, unordered_map<string,int> code_to_node){
+    Graph stop_and_lines = stop_and_lines_graph(a,b);
+    stop_and_lines.dijkstra_less_zones(stop_and_lines.n);
     list<int> path;
-    dijkstra_less_zones(a);
-    if(nodes[b].dist==(numeric_limits<long double>::max()/2))
+    if(stop_and_lines.nodes[1].dist==(numeric_limits<long double>::max()/2))
         return path;
-    int dest = b;
-    while(dest!=a){
-        path.push_front(dest);
-        dest=nodes[dest].pred;
-    }
-    path.push_front(dest);
-    return path;
-}
-
-pair<string,string> split(string word,char delim){
-    pair<string,string> answer;
-    string aux;
-    for(char c:word){
-        if(c==delim) {
-            answer.first=aux;
-            aux = "";
+    int dest = 1;
+    string previous_station;
+    while(dest!=stop_and_lines.n){
+        pair<string,string> stop_line = split(stop_and_lines.nodes[dest].code,'-');
+        if(previous_station!=stop_line.first) {
+            previous_station = stop_line.first;
+            path.push_front(code_to_node[stop_line.first]);
+            nodes[code_to_node[stop_line.first]].line = stop_line.second;
         }
-        else
-            aux+=c;
+        dest = stop_and_lines.nodes[dest].pred;
     }
-    if(answer.first=="")
-        answer.first=aux;
-    else
-        answer.second=aux;
-    return answer;
+    return path;
 }
 
 void Graph::dijkstra_less_changes(int s){
@@ -224,12 +225,10 @@ void Graph::dijkstra_less_changes(int s){
     while(heap.getSize()>0){
         int u = heap.removeMin();
         nodes[u].visited = true;
-        string src = nodes[u].code;
         for(Edge e:nodes[u].adj){
             int v = e.dest;
             if(!nodes[v].visited) {
                 if (nodes[u].line_changes + e.changes < nodes[v].line_changes) {
-                    string dest = nodes[v].code;
                     if (split(nodes[u].code, '-').second != "walking" or
                         split(nodes[v].code, '-').second != "walking") {
                         nodes[v].line_changes = nodes[u].line_changes + e.changes;
@@ -307,12 +306,10 @@ void Graph::dijkstra_less_length(int s) {
     while(heap.getSize()>0){
         int u = heap.removeMin();
         nodes[u].visited = true;
-        string src = nodes[u].code;
         for(Edge e:nodes[u].adj){
             int v = e.dest;
             if(!nodes[v].visited) {
                 if (nodes[u].dist + e.weight < nodes[v].dist) {
-                    string dest = nodes[v].code;
                     if (split(nodes[u].code, '-').second != "walking" or
                         split(nodes[v].code, '-').second != "walking") {
                         nodes[v].line_changes = nodes[u].line_changes + e.changes;
@@ -388,7 +385,7 @@ void Graph::bfs(int v) {
         nodes[i].visited = false;
     queue<int> q; // queue of unvisited nodes
     q.push(v);
-    nodes[v]. visited = true;
+    nodes[v].visited = true;
     while (!q.empty()) { // while there are still unvisited nodes
         int u = q.front(); q.pop();
         for (const auto& e : nodes[u].adj) {

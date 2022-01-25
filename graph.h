@@ -21,6 +21,36 @@ using namespace std;
 class Graph {
 
 public:
+    struct zones_line_changes{
+        inline zones_line_changes(){
+            this->line_changes = 0;
+            this->zone_changes = 0;
+        }
+        inline zones_line_changes(zones_line_changes const &d){
+            this->line_changes = d.line_changes;
+            this->zone_changes = d.zone_changes;
+        }
+        inline zones_line_changes(int line_changes,int zone_changes){
+            this->line_changes = line_changes;
+            this->zone_changes = zone_changes;
+        }
+        int line_changes;
+        int zone_changes;
+        inline bool operator <(const zones_line_changes &d) const{
+            if(zone_changes == d.zone_changes)
+                return line_changes<d.line_changes;
+            else {
+                return zone_changes < d.zone_changes;
+            }
+        }
+        inline bool operator >(const zones_line_changes &d) const{
+            if(zone_changes == d.zone_changes)
+                return line_changes>d.line_changes;
+            else {
+                return zone_changes > d.zone_changes;
+            }
+        }
+    };
     struct changes_dist{
         inline changes_dist(){
             this->distance = 0;
@@ -126,7 +156,7 @@ public:
     long double dijkstra_less_length_distance(int a, int b);
     list<int> dijkstra_less_length_path(int a, int b,unordered_map<string,int> code_to_node);
     list<int> dijkstra_less_changes_path(int a, int b,unordered_map<string,int> code_to_node);
-    list<int> dijkstra_less_zones_path(int a, int b);
+    list<int> dijkstra_less_zones_path(int a, int b,unordered_map<string,int> code_to_node);
     static long double dist_stops(const Node& previous_node,const Node& current_node);
     void bfs(int v);
     int unweighted_distance(int a, int b);
