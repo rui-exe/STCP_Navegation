@@ -20,7 +20,6 @@ private:
     void read_lines();
 public:
     STCP_Operations();
-    Graph& getStcp_reference();
     Graph getStcp_copy();
     unordered_map<string,int> get_code_to_node();
 };

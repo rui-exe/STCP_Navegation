@@ -94,10 +94,6 @@ void STCP_Operations::read_lines(){
     }
 }
 
-Graph& STCP_Operations::getStcp_reference() {
-    return stcp;
-}
-
 Graph STCP_Operations::getStcp_copy() {
     return stcp;
 }
