@@ -152,17 +152,28 @@ public:
     bool hasDir;        // false: undirect; true: directed
     vector<Node> nodes; // The list of nodes being represented
 
-
+    /**
+     *
+     * @param source
+     * @param destination
+     * @return A graph with nodes representing each line+station,with edges between nodes of the same lines and connecting all nodes representing the same station to
+     * each other. There is also a node source which only represents the source station (without any line) and has edges from it to all the other nodes representing
+     * the same station  and it's corresponding lines, and a node destination which only represents the destination station (without any line) and has edges from
+     * the other nodes representing the same station and it's corresponding lines to it.
+     * Complexity: O(n) = V*(E(V)^2)     (E(V)= Edges in each node)
+     */
 
     Graph stop_and_lines_graph(int a,int b);
     /**
      * Calculates the distance in kilometers to every node of the graph starting on the start node s
      * @param s int representing the node in which we want to start and calculate the distance to the other nodes
+     * Complexity O(n)= Elog|V| where E is the number of edges and V the number of vertices
      */
     void dijkstra_less_length(int s);
     /**
-     * Calculates the distance in terms of line changes to every node of the graph starting on the start node s
+     * Calculates the distance in terms of less number of zones used to every node of the graph starting on the start node s
      * @param s int representing the node in which we want to start and calculate the distance to the other nodes
+     * Complexity O(n)= Elog|V| where E is the number of edges and V the number of vertices
      */
     void dijkstra_less_zones(int s);
     // Constructor: nr nodes and direction (default: undirected)
@@ -170,15 +181,66 @@ public:
 
     // Add edge from source to destination with a certain weight
     void addEdge(int src, int dest, string line,long double weight = 1,bool changes=false);
+    /**
+     * Function that invokes the dijkstra_less_lenght() and returns the best path
+     * from node a to node b in terms of kilometers traveled.
+     * @param a int representing the starting node we want to calculate the best path from
+     * @param b int representing the final node we want to calculate the best path to
+     * @param code_to_node unordered_map so we can map the station's code to the int representing the node on the graph
+     * @return list of integers that represent the best path from node a to node b
+     */
     list<int> dijkstra_less_length_path(int a, int b,unordered_map<string,int> code_to_node);
+    /**
+     * Function that invokes the dijkstra_less_changes() and returns the best path
+     * from node a to b in terms of less bus changes made.
+     * @param a int representing the starting node we want to calculate the best path from
+     * @param b int representing the final node we want to calculate the best path to
+     * @param code_to_node unordered_map so we can map the station's code to the int representing the node on the graph
+     * @return list of integers that represent the best path from node a to node b
+     */
     list<int> dijkstra_less_changes_path(int a, int b,unordered_map<string,int> code_to_node);
+    /**
+     * Function that invokes the dijkstra_less_zones() and returns the best path
+     * from node a to b in terms of less zones used.
+     * @param a int representing the starting node we want to calculate the best path from
+     * @param b int representing the final node we want to calculate the best path to
+     * @param code_to_node unordered_map so we can map the station's code to the int representing the node on the graph
+     * @return list of integers that represent the best path from node a to node b
+     */
     list<int> dijkstra_less_zones_path(int a, int b,unordered_map<string,int> code_to_node);
+    /**
+     * Function that calculates the distance in kilometers between two nodes of the graph
+     * @param previous_node int that represents node a
+     * @param current_node int that represents node b
+     * @return long double representing the distance in kilometers between node a and node b.
+     */
     static long double dist_stops(const Node& previous_node,const Node& current_node);
     void bfs(int v);
     void add_walking(long double dist);
+    /**
+     * Function that adds an extra node to the graph which is an initial location specified by the user.
+     * @param latitude latitude coordinates of the initial specified location
+     * @param longitude longitude coordinates of the inital specified location
+     */
     void add_initial_location(double latitude,double longitude);
+    /**
+     * Function that adds an extra node to the graph which is a final location specified by the user.
+     * @param latitude latitude coordinates of the final specified location
+     * @param longitude longitude coordinates of the final specified location
+     */
     void add_final_location(double latitude,double longitude);
+    /**
+     * Function that invokes the bfs function and returns the best path with less stops made from node a to b.
+     * @param a int representing the starting node we want to calculate the best path from
+     * @param b int representing the final node we want to calculate the best path to
+     * @return list of integers that represent the best path from node a to node b
+     */
     list<int> unweighted_path(int a,int b);
+    /**
+     * Calculates the distance in terms of less number of bus lines changes to every node of the graph starting on the start node s
+     * @param s int representing the node in which we want to start and calculate the distance to the other nodes
+     * Complexity O(n)= Elog|V| where E is the number of edges and V the number of vertices
+     */
     void dijkstra_less_changes(int s);
 
 };
