@@ -217,7 +217,7 @@ void Graph::dijkstra_less_changes(int s){
     nodes[s].dist=0;
     nodes[s].line_changes = 0;
     nodes[s].pred = s;
-    MinHeap<int,distance_changes> heap(nodes.size()-1,-1);
+    MinHeap<int,changes_dist> heap(nodes.size()-1,-1);
     for(int i=1;i<nodes.size();i++){
         heap.insert(i,{nodes[i].dist,nodes[i].line_changes});
     }
@@ -276,12 +276,12 @@ list<int> Graph::dijkstra_less_changes_path(int a,int b,unordered_map<string,int
     int dest = 1;
     string previous_station;
     while(dest!=stop_and_lines.n){
-        Node x = stop_and_lines.nodes[dest];
         pair<string,string> stop_line = split(stop_and_lines.nodes[dest].code,'-');
         if(previous_station!=stop_line.first) {
             previous_station = stop_line.first;
             path.push_front(code_to_node[stop_line.first]);
             nodes[code_to_node[stop_line.first]].line = stop_line.second;
+            nodes[code_to_node[stop_line.first]].dist = stop_and_lines.nodes[dest].dist;
         }
         dest = stop_and_lines.nodes[dest].pred;
     }
@@ -294,26 +294,58 @@ list<int> Graph::dijkstra_less_changes_path(int a,int b,unordered_map<string,int
 void Graph::dijkstra_less_length(int s) {
     for(int i=1;i<nodes.size();i++){
         nodes[i].dist = numeric_limits<long double>::max()/2;
+        nodes[i].line_changes = numeric_limits<int>::max()/2;
         nodes[i].visited = false;
     }
     nodes[s].dist=0;
+    nodes[s].line_changes = 0;
     nodes[s].pred = s;
-    MinHeap<int,long double> heap(nodes.size()-1,-1);
+    MinHeap<int,distance_changes> heap(nodes.size()-1,-1);
     for(int i=1;i<nodes.size();i++){
-        heap.insert(i,nodes[i].dist);
+        heap.insert(i,{nodes[i].dist,nodes[i].line_changes});
     }
     while(heap.getSize()>0){
         int u = heap.removeMin();
         nodes[u].visited = true;
+        string src = nodes[u].code;
         for(Edge e:nodes[u].adj){
             int v = e.dest;
-            if(!nodes[v].visited and nodes[u].dist+e.weight<nodes[v].dist and (nodes[u].line!="walking" or e.line!="walking")) {
-                nodes[v].dist = nodes[u].dist + e.weight;
-                heap.decreaseKey(v, nodes[v].dist);
-                nodes[v].pred = u;
-                nodes[v].line = e.line;
+            if(!nodes[v].visited) {
+                if (nodes[u].dist + e.weight < nodes[v].dist) {
+                    string dest = nodes[v].code;
+                    if (split(nodes[u].code, '-').second != "walking" or
+                        split(nodes[v].code, '-').second != "walking") {
+                        nodes[v].line_changes = nodes[u].line_changes + e.changes;
+                        nodes[v].dist = nodes[u].dist + e.weight;
+                        heap.decreaseKey(v, {nodes[v].dist, nodes[v].line_changes});
+                        nodes[v].pred = u;
+                        if (split(nodes[u].code, '-').second == "walking")
+                            nodes[v].line = "walking";
+                    } else if (nodes[u].line != "walking") {
+                        nodes[v].line_changes = nodes[u].line_changes + e.changes;
+                        nodes[v].dist = nodes[u].dist + e.weight;
+                        heap.decreaseKey(v, {nodes[v].dist, nodes[v].line_changes});
+                        nodes[v].pred = u;
+                        nodes[v].line = "walking";
+                    }
+                }
+                else if (nodes[u].dist + e.weight == nodes[v].dist and
+                         nodes[u].line_changes + e.changes< nodes[v].line_changes) {
+                    if (split(nodes[u].code, '-').second != "walking" or
+                        split(nodes[v].code, '-').second != "walking") {
+                        nodes[v].line_changes = nodes[u].line_changes + e.changes;
+                        heap.decreaseKey(v, {nodes[v].dist, nodes[v].line_changes});
+                        nodes[v].pred = u;
+                        if (split(nodes[u].code, '-').second == "walking")
+                            nodes[v].line = "walking";
+                    } else if (nodes[u].line != "walking") {
+                        nodes[v].line_changes = nodes[u].line_changes + e.changes;
+                        heap.decreaseKey(v, {nodes[v].dist, nodes[v].line_changes});
+                        nodes[v].pred = u;
+                        nodes[v].line = "walking";
+                    }
+                }
             }
-
         }
     }
 }
@@ -329,17 +361,24 @@ long double Graph::dijkstra_less_length_distance(int a, int b) {
 // ..............................
 // b) Caminho mais curto entre dois nós
 // TODO
-list<int> Graph::dijkstra_less_length_path(int a, int b) {
+list<int> Graph::dijkstra_less_length_path(int a, int b,unordered_map<string,int> code_to_node) {
+    Graph stop_and_lines = stop_and_lines_graph(a,b);
+    stop_and_lines.dijkstra_less_length(stop_and_lines.n);
     list<int> path;
-    dijkstra_less_length(a);
-    if(nodes[b].dist==(numeric_limits<long double>::max()/2))
+    if(stop_and_lines.nodes[1].dist==(numeric_limits<long double>::max()/2))
         return path;
-    int dest = b;
-    while(dest!=a){
-        path.push_front(dest);
-        dest=nodes[dest].pred;
+    int dest = 1;
+    string previous_station;
+    while(dest!=stop_and_lines.n){
+        pair<string,string> stop_line = split(stop_and_lines.nodes[dest].code,'-');
+        if(previous_station!=stop_line.first) {
+            previous_station = stop_line.first;
+            path.push_front(code_to_node[stop_line.first]);
+            nodes[code_to_node[stop_line.first]].line = stop_line.second;
+            nodes[code_to_node[stop_line.first]].dist = stop_and_lines.nodes[dest].dist;
+        }
+        dest = stop_and_lines.nodes[dest].pred;
     }
-    path.push_front(dest);
     return path;
 }
 

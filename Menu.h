@@ -15,6 +15,7 @@ using namespace std;
 
 class Menu {
 private:
+    Graph g = Graph(0);
     STCP_Operations operations;
     unordered_map<string,int> code_to_node;
 public:
