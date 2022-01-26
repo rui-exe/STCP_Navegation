@@ -15,7 +15,8 @@ using namespace std;
 class STCP_Operations {
 private:
     unordered_map<string,int> code_to_node;
-    Graph stcp = Graph(0);
+    Graph stcp_day = Graph(0);
+    Graph stcp_night = Graph(0);
     /**
      * Private function that reads all the stops and assigns them to the nodes of the "stcp" graph
      */
@@ -33,10 +34,15 @@ public:
      */
     STCP_Operations();
     /**
-     * Simple getter for the graph "stcp"
-     * @return an instance of the Graph class which is our stcp Graph.
+     * Simple getter for the graph "stcp_day"
+     * @return an instance of the Graph class which is our stcp_day Graph.
      */
-    Graph getStcp_copy();
+    Graph getStcpDay();
+    /**
+     * Simple getter for the graph "stcp_night"
+     * @return an instance of the Graph class which is our stcp_night Graph.
+     */
+    Graph getStcpNight();
     /**
      * Simple getter for our unordered_map that maps the code of a bus stop to the int representing that stop on the graph
      * @return

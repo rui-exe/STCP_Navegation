@@ -21,7 +21,7 @@ void STCP_Operations::read_stops(){
     ifstream input_file;
     string line;
     int i=1;
-    input_file.open("stops.csv");
+    input_file.open("dataset/stops.csv");
     getline(input_file,line);
     while(getline(input_file,line)){
         vector<string> words;
@@ -32,11 +32,18 @@ void STCP_Operations::read_stops(){
         string code=words[0],name=words[1],zone=words[2];
         double latitude=stod(words[3]),longitude=stod(words[4]);
         code_to_node[code]=i;
-        stcp.nodes[i].code = code;
-        stcp.nodes[i].name = name;
-        stcp.nodes[i].zone = zone;
-        stcp.nodes[i].latitude = latitude;
-        stcp.nodes[i].longitude = longitude;
+        stcp_night.nodes[i].code = code;
+        stcp_night.nodes[i].name = name;
+        stcp_night.nodes[i].zone = zone;
+        stcp_night.nodes[i].latitude = latitude;
+        stcp_night.nodes[i].longitude = longitude;
+        stcp_night.nodes[i].closed = false;
+        stcp_day.nodes[i].code = code;
+        stcp_day.nodes[i].name = name;
+        stcp_day.nodes[i].zone = zone;
+        stcp_day.nodes[i].latitude = latitude;
+        stcp_day.nodes[i].longitude = longitude;
+        stcp_day.nodes[i].closed = false;
         i++;
     }
 
@@ -45,7 +52,7 @@ void STCP_Operations::read_stops(){
 void STCP_Operations::read_lines(){
     ifstream input_file;
     string line;
-    input_file.open("lines.csv");
+    input_file.open("dataset/lines.csv");
     getline(input_file,line);
     while(getline(input_file,line)){
         string aux_number_stops;
@@ -57,7 +64,7 @@ void STCP_Operations::read_lines(){
             words.push_back(word);
         ifstream line_file0;
         string bus_line = words[0];
-        line_file0.open("line_"+ bus_line+"_0.csv");
+        line_file0.open("dataset/line_"+ bus_line+"_0.csv");
         if(line_file0.is_open()) {
             getline(line_file0, aux_number_stops);
             number_stops_in_line = stoi(aux_number_stops);
@@ -68,13 +75,16 @@ void STCP_Operations::read_lines(){
                 getline(line_file0, current_bus_stop0);
                 int previous_node = code_to_node[previous_bus_stop0];
                 int current_node = code_to_node[current_bus_stop0];
-                stcp.addEdge(previous_node, current_node, bus_line+"_0", Graph::dist_stops(stcp.nodes[previous_node], stcp.nodes[current_node]));
+                if(bus_line.back()=='M')
+                    stcp_night.addEdge(previous_node, current_node, bus_line+"_0", Graph::dist_stops(stcp_night.nodes[previous_node], stcp_night.nodes[current_node]));
+                else
+                    stcp_day.addEdge(previous_node, current_node, bus_line+"_0", Graph::dist_stops(stcp_day.nodes[previous_node], stcp_day.nodes[current_node]));
                 previous_bus_stop0 = current_bus_stop0;
                 number_stops_in_line--;
             }
         }
         ifstream line_file1;
-        line_file1.open("line_"+ bus_line+"_1.csv");
+        line_file1.open("dataset/line_"+ bus_line+"_1.csv");
         if(line_file1.is_open()) {
             string previous_bus_stop1;
             getline(line_file1,aux_number_stops);
@@ -86,7 +96,10 @@ void STCP_Operations::read_lines(){
                 getline(line_file1, current_bus_stop1);
                 int previous_node = code_to_node[previous_bus_stop1];
                 int current_node = code_to_node[current_bus_stop1];
-                stcp.addEdge(previous_node, current_node, bus_line+"_1", Graph::dist_stops(stcp.nodes[previous_node], stcp.nodes[current_node]));
+                if(bus_line.back()=='M')
+                    stcp_night.addEdge(previous_node, current_node, bus_line+"_1", Graph::dist_stops(stcp_night.nodes[previous_node], stcp_night.nodes[current_node]));
+                else
+                    stcp_day.addEdge(previous_node, current_node, bus_line+"_1", Graph::dist_stops(stcp_day.nodes[previous_node], stcp_day.nodes[current_node]));
                 previous_bus_stop1 = current_bus_stop1;
                 number_stops_in_line--;
             }
@@ -94,8 +107,12 @@ void STCP_Operations::read_lines(){
     }
 }
 
-Graph STCP_Operations::getStcp_copy() {
-    return stcp;
+Graph STCP_Operations::getStcpNight() {
+    return stcp_night;
+}
+
+Graph STCP_Operations::getStcpDay() {
+    return stcp_day;
 }
 
 unordered_map<string,int> STCP_Operations::get_code_to_node(){
@@ -103,7 +120,8 @@ unordered_map<string,int> STCP_Operations::get_code_to_node(){
 }
 
 STCP_Operations::STCP_Operations(){
-    stcp = Graph( number_of_lines_in_file("stops.csv")-1,true);
+    stcp_night = Graph( number_of_lines_in_file("dataset/stops.csv")-1,true);
+    stcp_day = Graph( number_of_lines_in_file("dataset/stops.csv")-1,true);
     read_stops();
     read_lines();
 }

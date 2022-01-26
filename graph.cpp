@@ -42,7 +42,7 @@ void Graph::dijkstra_less_zones(int s) {
     for(int i=1;i<nodes.size();i++){
         nodes[i].zones = numeric_limits<int>::max() / 2;
         nodes[i].line_changes = numeric_limits<int>::max() / 2;
-        nodes[i].visited = false;
+        nodes[i].visited = nodes[i].closed;
         nodes[i].zones_used.clear();
     }
     nodes[s].pred = s;
@@ -69,7 +69,7 @@ void Graph::dijkstra_less_zones(int s) {
                     if (split(nodes[u].code, '-').second != "walking" or
                         split(nodes[v].code, '-').second != "walking") {
                         nodes[v].zones_used = nodes[u].zones_used;
-                        if(nodes[v].zones_used.find(nodes[v].zone)==nodes[v].zones_used.end())
+                        if (nodes[v].zones_used.find(nodes[v].zone) == nodes[v].zones_used.end())
                             nodes[v].zones_used.insert(nodes[v].zone);
                         nodes[v].line_changes = nodes[u].line_changes + e.changes;
                         nodes[v].zones = new_zone_changes;
@@ -77,15 +77,17 @@ void Graph::dijkstra_less_zones(int s) {
                         nodes[v].pred = u;
                         if (split(nodes[u].code, '-').second == "walking")
                             nodes[v].line = "walking";
-                    } else if (nodes[u].line != "walking")
+                    } else if (nodes[u].line != "walking") {
                         nodes[v].zones_used = nodes[u].zones_used;
-                        if(nodes[v].zones_used.find(nodes[v].zone)==nodes[v].zones_used.end())
+                        if (nodes[v].zones_used.find(nodes[v].zone) == nodes[v].zones_used.end())
                             nodes[v].zones_used.insert(nodes[v].zone);
                         nodes[v].line_changes = nodes[u].line_changes + e.changes;
                         nodes[v].zones = new_zone_changes;
                         heap.decreaseKey(v, {nodes[v].line_changes, nodes[v].zones});
                         nodes[v].pred = u;
+                        nodes[v].line = "walking";
                     }
+                }
                 else if (new_zone_changes == old_zone_changes and
                          nodes[u].line_changes + e.changes< nodes[v].line_changes) {
                     if (split(nodes[u].code, '-').second != "walking" or
@@ -107,6 +109,7 @@ void Graph::dijkstra_less_zones(int s) {
                         nodes[v].zones = new_zone_changes;
                         heap.decreaseKey(v, {nodes[v].line_changes, nodes[v].zones});
                         nodes[v].pred = u;
+                        nodes[v].line = "walking";
                     }
                 }
             }
@@ -213,7 +216,7 @@ void Graph::dijkstra_less_changes(int s){
     for(int i=1;i<nodes.size();i++){
         nodes[i].dist = numeric_limits<long double>::max()/2;
         nodes[i].line_changes = numeric_limits<int>::max()/2;
-        nodes[i].visited = false;
+        nodes[i].visited = nodes[i].closed;
     }
     nodes[s].dist=0;
     nodes[s].line_changes = 0;
@@ -294,7 +297,7 @@ void Graph::dijkstra_less_length(int s) {
     for(int i=1;i<nodes.size();i++){
         nodes[i].dist = numeric_limits<long double>::max()/2;
         nodes[i].line_changes = numeric_limits<int>::max()/2;
-        nodes[i].visited = false;
+        nodes[i].visited = nodes[i].closed;
     }
     nodes[s].dist=0;
     nodes[s].line_changes = 0;
@@ -371,7 +374,7 @@ list<int> Graph::dijkstra_less_length_path(int a, int b,unordered_map<string,int
 void Graph::bfs(int v) {
     nodes[v].unweighted_distance=0;
     for (int i=1; i<=n; i++)
-        nodes[i].visited = false;
+        nodes[i].visited = nodes[i].closed;
     queue<int> q; // queue of unvisited nodes
     q.push(v);
     nodes[v].visited = true;

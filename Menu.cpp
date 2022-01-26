@@ -78,12 +78,33 @@ void Menu::interface() {
 }
 
 void Menu::plan_trip() {
+    bool day;
+    cout<<"Day or Night? (1 for day 0 for night): ";
+    cin>> day;
+    if(day)
+        g = operations.getStcpDay();
+    else
+        g = operations.getStcpNight();
+    int nr_stops_closed;
+    string station_to_close;
     long double walking_dist;
     char option;
+    cout<<"How many stations do you want to close/ignore: ";
+    cin>> nr_stops_closed;
+    for(int c=0; c<nr_stops_closed;c++){
+        cout<<"Name of the station you wish to close: ";
+        station_to_close = read_string();
+        g.nodes[code_to_node[station_to_close]].closed=true;
+    }
     cout<<"How many km are you willing to walk on foot (max:1km): ";
     cin>>walking_dist;
-    g = operations.getStcp_copy();
+
+    auto start = chrono::high_resolution_clock::now();
+    cout << endl<<"Creating graph....";
     g.add_walking(walking_dist);
+    auto stop = chrono::high_resolution_clock::now();
+    cout << endl << "Graph created in: " << chrono::duration_cast<chrono::seconds>(stop-start).count()<<" secs"<<endl;
+
     while (!cin.eof() and option != '5') {
         cout<<endl;
         cout << "Please enter an option" << endl;
@@ -161,25 +182,24 @@ void Menu::coordinate_to_station(long double walking_dist) {
     longitude= read_double();
     cout << "Code of Final Station: ";
     station=read_string();
-    Graph stcp_copy = operations.getStcp_copy();
-    stcp_copy.add_initial_location(latitude, longitude);
-    code_to_node["LI"] = stcp_copy.n;
+    g.add_initial_location(latitude, longitude);
+    code_to_node["LI"] = g.n;
     char method = choose_method();
     switch (method) {
         case'1':{
-            less_changes(stcp_copy,stcp_copy.n,code_to_node[station],walking_dist);
+            less_changes(g,g.n,code_to_node[station],walking_dist);
             break;
         }
         case '2': {
-            less_stops(stcp_copy,stcp_copy.n,code_to_node[station],walking_dist);
+            less_stops(g,g.n,code_to_node[station],walking_dist);
             break;
         }
         case '3': {
-            less_distance(stcp_copy,stcp_copy.n,code_to_node[station],walking_dist);
+            less_distance(g,g.n,code_to_node[station],walking_dist);
             break;
         }
         case '4':{
-            less_zones(stcp_copy,stcp_copy.n,code_to_node[station],walking_dist);
+            less_zones(g,g.n,code_to_node[station],walking_dist);
             break;
         }
     }
@@ -196,27 +216,26 @@ void Menu::coordinate_to_coordinate (long double walking_dist) {
     latitude2 = read_double();
     cout << "Latitude of end coordinate  ";
     longitude2= read_double();
-    Graph stcp_copy = operations.getStcp_copy();
-    stcp_copy.add_initial_location(latitude1, longitude1);
-    stcp_copy.add_final_location(latitude2,longitude2);
-    code_to_node["LI"] = stcp_copy.n-1;
-    code_to_node["LF"] = stcp_copy.n;
+    g.add_initial_location(latitude1, longitude1);
+    g.add_final_location(latitude2,longitude2);
+    code_to_node["LI"] = g.n-1;
+    code_to_node["LF"] = g.n;
     char method = choose_method();
     switch (method) {
         case'1':{
-            less_changes(stcp_copy,stcp_copy.n-1,stcp_copy.n,walking_dist);
+            less_changes(g,g.n-1,g.n,walking_dist);
             break;
         }
         case '2': {
-            less_stops(stcp_copy,stcp_copy.n-1,stcp_copy.n,walking_dist);
+            less_stops(g,g.n-1,g.n,walking_dist);
             break;
         }
         case '3': {
-            less_distance(stcp_copy,stcp_copy.n-1,stcp_copy.n,walking_dist);
+            less_distance(g,g.n-1,g.n,walking_dist);
             break;
         }
         case '4':{
-            less_zones(stcp_copy,stcp_copy.n-1,stcp_copy.n,walking_dist);
+            less_zones(g,g.n-1,g.n,walking_dist);
             break;
         }
     }
@@ -232,25 +251,24 @@ void Menu::station_to_coordinate(long double walking_dist) {
     latitude = read_double();
     cout << "Latitude of end coordinate  ";
     longitude= read_double();
-    Graph stcp_copy = operations.getStcp_copy();
-    stcp_copy.add_final_location(latitude,longitude);
-    code_to_node["FI"] = stcp_copy.n;
+    g.add_final_location(latitude,longitude);
+    code_to_node["FI"] = g.n;
     char method = choose_method();
     switch (method) {
         case'1':{
-            less_changes(stcp_copy,code_to_node[station],stcp_copy.n,walking_dist);
+            less_changes(g,code_to_node[station],g.n,walking_dist);
             break;
         }
         case '2': {
-            less_stops(stcp_copy,code_to_node[station],stcp_copy.n,walking_dist);
+            less_stops(g,code_to_node[station],g.n,walking_dist);
             break;
         }
         case '3': {
-            less_distance(stcp_copy,code_to_node[station],stcp_copy.n,walking_dist);
+            less_distance(g,code_to_node[station],g.n,walking_dist);
             break;
         }
         case '4':{
-            less_zones(stcp_copy,code_to_node[station],stcp_copy.n,walking_dist);
+            less_zones(g,code_to_node[station],g.n,walking_dist);
             break;
         }
     }
@@ -302,7 +320,7 @@ void Menu::less_distance(Graph g, int initial_node, int final_node, long double 
     for (int stop: stops_distance) {
         cout << "Paragem: " << g.nodes[stop].name << "  Codigo: "
              << g.nodes[stop].code
-             << " Linha apanhada: " << g.nodes[stop].line << "  Zona: "
+             << " Linha a apanhar: " << g.nodes[stop].line << "  Zona: "
              << g.nodes[stop].zone << endl;
     }
     auto stop = chrono::high_resolution_clock::now();
@@ -315,7 +333,7 @@ void Menu::less_zones(Graph g, int initial_node, int final_node, long double wal
     cout << endl;
     list<int> zones_distance = g.dijkstra_less_zones_path(initial_node,final_node,code_to_node);
     for(int stop:zones_distance){
-        cout << "Paragem: "<< g.nodes[stop].name << "  Codigo: " << g.nodes[stop].code << " Linha apanhada: "
+        cout << "Paragem: "<< g.nodes[stop].name << "  Codigo: " << g.nodes[stop].code << " Linha a apanhar: "
              <<g.nodes[stop].line << "  Zona: "<<g.nodes[stop].zone<<endl;
     }
     auto stop = chrono::high_resolution_clock::now();
