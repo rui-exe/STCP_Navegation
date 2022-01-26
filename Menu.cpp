@@ -170,7 +170,6 @@ void Menu::station_to_station(long double walking_dist) {
             break;
         }
     }
-
 }
 
 void Menu::coordinate_to_station(long double walking_dist) {
@@ -183,27 +182,29 @@ void Menu::coordinate_to_station(long double walking_dist) {
     longitude= read_double();
     cout << "Code of Final Station: ";
     station=read_string();
-    g.add_initial_location(latitude, longitude,walking_dist);
-    code_to_node["LI"] = g.n;
+    Graph g_copy(g);
+    g_copy.add_initial_location(latitude, longitude,walking_dist);
+    code_to_node["LI"] = g_copy.n;
     char method = choose_method();
     switch (method) {
         case'1':{
-            less_changes(g,g.n,code_to_node[station],walking_dist);
+            less_changes(g_copy,g_copy.n,code_to_node[station],walking_dist);
             break;
         }
         case '2': {
-            less_stops(g,g.n,code_to_node[station],walking_dist);
+            less_stops(g_copy,g_copy.n,code_to_node[station],walking_dist);
             break;
         }
         case '3': {
-            less_distance(g,g.n,code_to_node[station],walking_dist);
+            less_distance(g_copy,g_copy.n,code_to_node[station],walking_dist);
             break;
         }
         case '4':{
-            less_zones(g,g.n,code_to_node[station],walking_dist);
+            less_zones(g_copy,g_copy.n,code_to_node[station],walking_dist);
             break;
         }
     }
+    code_to_node.erase("LI");
 }
 
 void Menu::coordinate_to_coordinate (long double walking_dist) {
@@ -217,29 +218,32 @@ void Menu::coordinate_to_coordinate (long double walking_dist) {
     latitude2 = read_double();
     cout << "Latitude of end coordinate  ";
     longitude2= read_double();
-    g.add_initial_location(latitude1, longitude1,walking_dist);
-    g.add_final_location(latitude2,longitude2,walking_dist);
-    code_to_node["LI"] = g.n-1;
-    code_to_node["LF"] = g.n;
+    Graph g_copy(g);
+    g_copy.add_initial_location(latitude1, longitude1,walking_dist);
+    g_copy.add_final_location(latitude2,longitude2,walking_dist);
+    code_to_node["LI"] = g_copy.n-1;
+    code_to_node["LF"] = g_copy.n;
     char method = choose_method();
     switch (method) {
         case'1':{
-            less_changes(g,g.n-1,g.n,walking_dist);
+            less_changes(g_copy,g_copy.n-1,g_copy.n,walking_dist);
             break;
         }
         case '2': {
-            less_stops(g,g.n-1,g.n,walking_dist);
+            less_stops(g_copy,g_copy.n-1,g_copy.n,walking_dist);
             break;
         }
         case '3': {
-            less_distance(g,g.n-1,g.n,walking_dist);
+            less_distance(g_copy,g_copy.n-1,g_copy.n,walking_dist);
             break;
         }
         case '4':{
-            less_zones(g,g.n-1,g.n,walking_dist);
+            less_zones(g_copy,g_copy.n-1,g_copy.n,walking_dist);
             break;
         }
     }
+    code_to_node.erase("LI");
+    code_to_node.erase("LF");
 }
 
 void Menu::station_to_coordinate(long double walking_dist) {
@@ -252,27 +256,29 @@ void Menu::station_to_coordinate(long double walking_dist) {
     latitude = read_double();
     cout << "Latitude of end coordinate  ";
     longitude= read_double();
-    g.add_final_location(latitude,longitude,walking_dist);
-    code_to_node["LF"] = g.n;
+    Graph g_copy(g);
+    g_copy.add_final_location(latitude,longitude,walking_dist);
+    code_to_node["LF"] = g_copy.n;
     char method = choose_method();
     switch (method) {
         case'1':{
-            less_changes(g,code_to_node[station],g.n,walking_dist);
+            less_changes(g_copy,code_to_node[station],g_copy.n,walking_dist);
             break;
         }
         case '2': {
-            less_stops(g,code_to_node[station],g.n,walking_dist);
+            less_stops(g_copy,code_to_node[station],g_copy.n,walking_dist);
             break;
         }
         case '3': {
-            less_distance(g,code_to_node[station],g.n,walking_dist);
+            less_distance(g_copy,code_to_node[station],g_copy.n,walking_dist);
             break;
         }
         case '4':{
-            less_zones(g,code_to_node[station],g.n,walking_dist);
+            less_zones(g_copy,code_to_node[station],g_copy.n,walking_dist);
             break;
         }
     }
+    code_to_node.erase("LF");
 }
 
 char Menu::choose_method() {
