@@ -163,7 +163,7 @@ public:
      * There is also a node source which only represents the source station (without any line) and has edges from it to all the other nodes representing
      * the same station and it's corresponding lines, and a node destination which only represents the destination station (without any line) and has edges from
      * the other nodes representing the same station and it's corresponding lines to it.
-     * Complexity: O(n) = V*(E(V)^2)     (E(V)= Edges in each node)
+     * Complexity: O(n) = Σ Edges in node i, 1<=i<=v
      */
 
     Graph stop_and_lines_graph(int a,int b);
