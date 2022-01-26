@@ -155,15 +155,15 @@ public:
 
     /**
      *
-     * @param source
-     * @param destination
+     * @param a int of the source node
+     * @param b int of the destination node
      * @return A graph with nodes representing each line+station,with edges between nodes of the same lines and connecting all nodes representing the same station to
      * each other. This edges have 0 distance as they are in the same station, but they count as a change in lines. The edges from some line to a walking line
      * don't count as a change as that change will be considered when changing back from a walking line to a regular line.
      * There is also a node source which only represents the source station (without any line) and has edges from it to all the other nodes representing
      * the same station and it's corresponding lines, and a node destination which only represents the destination station (without any line) and has edges from
      * the other nodes representing the same station and it's corresponding lines to it.
-     * Complexity: O(n) = Σ Edges in node i, 1<=i<=v
+     * Complexity: O(n) = Σ ((Edges in node i)^2), 1<=i<=v
      */
 
     Graph stop_and_lines_graph(int a,int b);
