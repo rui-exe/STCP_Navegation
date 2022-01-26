@@ -54,11 +54,13 @@ char readChar() {
 
 void Menu::interface() {
     char option;
-    while (!cin.eof() and option != '2') {
+    while (!cin.eof() and option != '4') {
         cout<<endl;
         cout << "Please enter an option" << endl;
         cout << "1. Plan Trip" << endl;
-        cout << "2. Exit" << endl;
+        cout << "2. Close station" << endl;
+        cout << "3. Open station" << endl;
+        cout << "4. Exit" << endl;
         cout<<endl;
         option=readChar();
         switch (option) {
@@ -66,7 +68,15 @@ void Menu::interface() {
                 plan_trip();
                 break;
             }
-            case '2':{
+            case '2': {
+                close_stations();
+                break;
+            }
+            case '3': {
+                open_stations();
+                break;
+            }
+            case '4':{
                 continue;
             }
             default:{
@@ -85,17 +95,8 @@ void Menu::plan_trip() {
         g = operations.getStcpDay();
     else
         g = operations.getStcpNight();
-    int nr_stops_closed;
-    string station_to_close;
     long double walking_dist;
     char option;
-    cout<<"How many stations do you want to close/ignore: ";
-    cin>> nr_stops_closed;
-    for(int c=0; c<nr_stops_closed;c++){
-        cout<<"Name of the station you wish to close: ";
-        station_to_close = read_string();
-        g.nodes[code_to_node[station_to_close]].closed=true;
-    }
     cout<<"How many km are you willing to walk on foot (max:1km): ";
     cin>>walking_dist;
 
@@ -132,7 +133,7 @@ void Menu::plan_trip() {
                 coordinate_to_coordinate(walking_dist);
                 break;
             }
-            case '5': {
+            case '5':{
                 continue;
             }
             default:{
@@ -182,7 +183,7 @@ void Menu::coordinate_to_station(long double walking_dist) {
     longitude= read_double();
     cout << "Code of Final Station: ";
     station=read_string();
-    g.add_initial_location(latitude, longitude);
+    g.add_initial_location(latitude, longitude,walking_dist);
     code_to_node["LI"] = g.n;
     char method = choose_method();
     switch (method) {
@@ -216,8 +217,8 @@ void Menu::coordinate_to_coordinate (long double walking_dist) {
     latitude2 = read_double();
     cout << "Latitude of end coordinate  ";
     longitude2= read_double();
-    g.add_initial_location(latitude1, longitude1);
-    g.add_final_location(latitude2,longitude2);
+    g.add_initial_location(latitude1, longitude1,walking_dist);
+    g.add_final_location(latitude2,longitude2,walking_dist);
     code_to_node["LI"] = g.n-1;
     code_to_node["LF"] = g.n;
     char method = choose_method();
@@ -251,8 +252,8 @@ void Menu::station_to_coordinate(long double walking_dist) {
     latitude = read_double();
     cout << "Latitude of end coordinate  ";
     longitude= read_double();
-    g.add_final_location(latitude,longitude);
-    code_to_node["FI"] = g.n;
+    g.add_final_location(latitude,longitude,walking_dist);
+    code_to_node["LF"] = g.n;
     char method = choose_method();
     switch (method) {
         case'1':{
@@ -338,4 +339,28 @@ void Menu::less_zones(Graph g, int initial_node, int final_node, long double wal
     }
     auto stop = chrono::high_resolution_clock::now();
     cout << endl << "Results given in: " << chrono::duration_cast<chrono::seconds>(stop-start).count()<<" secs"<<endl;
+}
+
+void Menu::close_stations(){
+    int nr_stops_closed;
+    string station_to_close;
+    cout<<"How many stations do you want to close: ";
+    cin>> nr_stops_closed;
+    for(int c=0; c<nr_stops_closed;c++){
+        cout<<"Code of the station you wish to close: ";
+        station_to_close = read_string();
+        operations.close_station(station_to_close);
+    }
+}
+
+void Menu::open_stations(){
+    int nr_stops_opened;
+    string station_to_close;
+    cout<<"How many stations do you want to open: ";
+    cin>> nr_stops_opened;
+    for(int c=0; c<nr_stops_opened;c++){
+        cout<<"Code of the station you wish to open: ";
+        station_to_close = read_string();
+        operations.open_station(station_to_close);
+    }
 }

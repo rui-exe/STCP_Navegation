@@ -224,14 +224,16 @@ public:
      * Function that adds an extra node to the graph which is an initial location specified by the user.
      * @param latitude latitude coordinates of the initial specified location
      * @param longitude longitude coordinates of the inital specified location
+     * @param walking_dist distance user can walk
      */
-    void add_initial_location(double latitude,double longitude);
+    void add_initial_location(double latitude,double longitude,long double walking_dist);
     /**
      * Function that adds an extra node to the graph which is a final location specified by the user.
      * @param latitude latitude coordinates of the final specified location
      * @param longitude longitude coordinates of the final specified location
+     * @param walking_dist distance user can walk
      */
-    void add_final_location(double latitude,double longitude);
+    void add_final_location(double latitude,double longitude,long double walking_dist);
     /**
      * Function that invokes the bfs function and returns the best path with less stops made from node a to b.
      * @param a int representing the starting node we want to calculate the best path from

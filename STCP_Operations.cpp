@@ -107,6 +107,16 @@ void STCP_Operations::read_lines(){
     }
 }
 
+void STCP_Operations::close_station(const string& code){
+    stcp_day.nodes[code_to_node[code]].closed=true;
+    stcp_night.nodes[code_to_node[code]].closed=true;
+}
+
+void STCP_Operations::open_station(const string& code){
+    stcp_day.nodes[code_to_node[code]].closed=false;
+    stcp_night.nodes[code_to_node[code]].closed=false;
+}
+
 Graph STCP_Operations::getStcpNight() {
     return stcp_night;
 }

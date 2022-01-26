@@ -95,6 +95,16 @@ public:
      * @param walking_dist a long double that represents the distance that the user is willing to travel on foot.
      */
     void less_zones(Graph g, int initial_node, int final_node, long double walking_dist);
+
+    /**
+     * This function lets the user choose stations that he doesn't want to use
+     */
+    void close_stations();
+
+    /**
+    * This function lets the user choose stations that he doesn't want to open
+    */
+    void open_stations();
 };
 
 

@@ -48,6 +48,18 @@ public:
      * @return
      */
     unordered_map<string,int> get_code_to_node();
+    /**
+     *
+     * @param code - station code
+     * closes the station with the code given as input
+     */
+    void close_station(const string& code);
+    /**
+     *
+     * @param code - station code
+     * opens the station with the code given as input
+     */
+    void open_station(const string& code);
 };
 
 
