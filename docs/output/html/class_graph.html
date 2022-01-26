@@ -112,10 +112,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>bfs</b> (int v)</td><
 <tr class="memitem:aca97e6bfb008f29fbd3979f2c625c1e3"><td class="memItemLeft" align="right" valign="top"><a id="aca97e6bfb008f29fbd3979f2c625c1e3" name="aca97e6bfb008f29fbd3979f2c625c1e3"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>add_walking</b> (long double dist)</td></tr>
 <tr class="separator:aca97e6bfb008f29fbd3979f2c625c1e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ada0dcc09aad17bea5defa13aa22e609b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph.html#ada0dcc09aad17bea5defa13aa22e609b">add_initial_location</a> (double latitude, double longitude)</td></tr>
-<tr class="separator:ada0dcc09aad17bea5defa13aa22e609b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79bec12b39933ecf29f6fbf66b473d4b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph.html#a79bec12b39933ecf29f6fbf66b473d4b">add_final_location</a> (double latitude, double longitude)</td></tr>
-<tr class="separator:a79bec12b39933ecf29f6fbf66b473d4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e6164102235a4954869d2a5e0fa42fd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph.html#a9e6164102235a4954869d2a5e0fa42fd">add_initial_location</a> (double latitude, double longitude, long double walking_dist)</td></tr>
+<tr class="separator:a9e6164102235a4954869d2a5e0fa42fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27a4e050652f7dbf18da2faccf61d054"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph.html#a27a4e050652f7dbf18da2faccf61d054">add_final_location</a> (double latitude, double longitude, long double walking_dist)</td></tr>
+<tr class="separator:a27a4e050652f7dbf18da2faccf61d054"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8f5cf36ee4786244b55b300e87987aa1"><td class="memItemLeft" align="right" valign="top">list&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph.html#a8f5cf36ee4786244b55b300e87987aa1">unweighted_path</a> (int a, int b)</td></tr>
 <tr class="separator:a8f5cf36ee4786244b55b300e87987aa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adeccd6008806279f7ad25352526fc642"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_graph.html#adeccd6008806279f7ad25352526fc642">dijkstra_less_changes</a> (int s)</td></tr>
@@ -139,8 +139,8 @@ vector&lt; <a class="el" href="struct_graph_1_1_node.html">Node</a> &gt;&#160;</
 <tr class="separator:a71b5e16eb9e0670fea3ecee3526abb41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a79bec12b39933ecf29f6fbf66b473d4b" name="a79bec12b39933ecf29f6fbf66b473d4b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a79bec12b39933ecf29f6fbf66b473d4b">&#9670;&nbsp;</a></span>add_final_location()</h2>
+<a id="a27a4e050652f7dbf18da2faccf61d054" name="a27a4e050652f7dbf18da2faccf61d054"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a27a4e050652f7dbf18da2faccf61d054">&#9670;&nbsp;</a></span>add_final_location()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -155,7 +155,13 @@ vector&lt; <a class="el" href="struct_graph_1_1_node.html">Node</a> &gt;&#160;</
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>longitude</em>&#160;</td>
+          <td class="paramname"><em>longitude</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">long double&#160;</td>
+          <td class="paramname"><em>walking_dist</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -168,14 +174,15 @@ vector&lt; <a class="el" href="struct_graph_1_1_node.html">Node</a> &gt;&#160;</
   <table class="params">
     <tr><td class="paramname">latitude</td><td>latitude coordinates of the final specified location </td></tr>
     <tr><td class="paramname">longitude</td><td>longitude coordinates of the final specified location </td></tr>
+    <tr><td class="paramname">walking_dist</td><td>distance user can walk </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a id="ada0dcc09aad17bea5defa13aa22e609b" name="ada0dcc09aad17bea5defa13aa22e609b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ada0dcc09aad17bea5defa13aa22e609b">&#9670;&nbsp;</a></span>add_initial_location()</h2>
+<a id="a9e6164102235a4954869d2a5e0fa42fd" name="a9e6164102235a4954869d2a5e0fa42fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9e6164102235a4954869d2a5e0fa42fd">&#9670;&nbsp;</a></span>add_initial_location()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -190,7 +197,13 @@ vector&lt; <a class="el" href="struct_graph_1_1_node.html">Node</a> &gt;&#160;</
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>longitude</em>&#160;</td>
+          <td class="paramname"><em>longitude</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">long double&#160;</td>
+          <td class="paramname"><em>walking_dist</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -203,6 +216,7 @@ vector&lt; <a class="el" href="struct_graph_1_1_node.html">Node</a> &gt;&#160;</
   <table class="params">
     <tr><td class="paramname">latitude</td><td>latitude coordinates of the initial specified location </td></tr>
     <tr><td class="paramname">longitude</td><td>longitude coordinates of the inital specified location </td></tr>
+    <tr><td class="paramname">walking_dist</td><td>distance user can walk </td></tr>
   </table>
   </dd>
 </dl>

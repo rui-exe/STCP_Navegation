@@ -82,6 +82,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ad88a01e3fdd10473a7e5a18052d398df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3832a7998b8d708fe0bee7bf441886b1"><td class="memItemLeft" align="right" valign="top">unordered_map&lt; string, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_t_c_p___operations.html#a3832a7998b8d708fe0bee7bf441886b1">get_code_to_node</a> ()</td></tr>
 <tr class="separator:a3832a7998b8d708fe0bee7bf441886b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a979eb1960ca99d70ad6205f70083cd2b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_t_c_p___operations.html#a979eb1960ca99d70ad6205f70083cd2b">close_station</a> (const string &amp;code)</td></tr>
+<tr class="separator:a979eb1960ca99d70ad6205f70083cd2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d3f7005073fcea4994ae68458cf4c49"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_s_t_c_p___operations.html#a6d3f7005073fcea4994ae68458cf4c49">open_station</a> (const string &amp;code)</td></tr>
+<tr class="separator:a6d3f7005073fcea4994ae68458cf4c49"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
@@ -122,6 +126,30 @@ unordered_map&lt; string, int &gt;&#160;</td><td class="memItemRight" valign="bo
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a979eb1960ca99d70ad6205f70083cd2b" name="a979eb1960ca99d70ad6205f70083cd2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a979eb1960ca99d70ad6205f70083cd2b">&#9670;&nbsp;</a></span>close_station()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void STCP_Operations::close_station </td>
+          <td>(</td>
+          <td class="paramtype">const string &amp;&#160;</td>
+          <td class="paramname"><em>code</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">code</td><td>- station code closes the station with the code given as input </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a3832a7998b8d708fe0bee7bf441886b1" name="a3832a7998b8d708fe0bee7bf441886b1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3832a7998b8d708fe0bee7bf441886b1">&#9670;&nbsp;</a></span>get_code_to_node()</h2>
 
@@ -173,6 +201,30 @@ unordered_map&lt; string, int &gt;&#160;</td><td class="memItemRight" valign="bo
       </table>
 </div><div class="memdoc">
 <p >Simple getter for the graph "stcp_night" </p><dl class="section return"><dt>Returns</dt><dd>an instance of the <a class="el" href="class_graph.html">Graph</a> class which is our stcp_night <a class="el" href="class_graph.html">Graph</a>. </dd></dl>
+
+</div>
+</div>
+<a id="a6d3f7005073fcea4994ae68458cf4c49" name="a6d3f7005073fcea4994ae68458cf4c49"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d3f7005073fcea4994ae68458cf4c49">&#9670;&nbsp;</a></span>open_station()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void STCP_Operations::open_station </td>
+          <td>(</td>
+          <td class="paramtype">const string &amp;&#160;</td>
+          <td class="paramname"><em>code</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">code</td><td>- station code opens the station with the code given as input </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

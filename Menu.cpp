@@ -97,7 +97,7 @@ void Menu::plan_trip() {
         g = operations.getStcpNight();
     long double walking_dist;
     char option;
-    cout<<"How many km are you willing to walk on foot (max:1km): ";
+    cout<<"How many km are you willing to walk on foot: ";
     cin>>walking_dist;
 
     auto start = chrono::high_resolution_clock::now();
